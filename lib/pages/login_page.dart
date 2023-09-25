@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:taller_mecanico/pages/home_page.dart';
-import '../widgets/app_colors.dart';
+import '../widgets/app_colors.dart'; // Importa el archivo app_colors.dart
 import '../widgets/reusable_widget.dart';
 
 class LoginPage extends StatefulWidget {
@@ -39,8 +39,7 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(
-                        color:
-                            Colors.black.withOpacity(0.5), // Color de la sombra
+                        color: Colors.black.withOpacity(0.5), // Color de la sombra
                         spreadRadius: 1.25, // Cuánto se extiende la sombra
                         blurRadius: 7, // Cuánto se difumina la sombra
                         offset: Offset(
@@ -50,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(50),
-                    child: Column(                      
+                    child: Column(
                       children: [
                         reusableTextField(
                           "Email",
@@ -85,8 +84,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-        AppColors
-            .colorBase, // Utiliza la lista de colores desde app_colors.dart
+        AppColors.colorBase, // Utiliza la lista de colores desde app_colors.dart
       ),
     );
   }
