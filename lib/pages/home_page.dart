@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:taller_mecanico/pages/login_page.dart';
 import '../widgets/app_colors.dart'; // Importa el archivo app_colors.dart
@@ -36,10 +37,16 @@ class _HomePageState extends State<HomePage> {
                     RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)))),
             onPressed: () {
-              Navigator.push(
+              FirebaseAuth.instance.signOut().then((value) {
+                print("Sesion Cerrada");
+                Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => LoginPage()),
-              );
+              );  
+              });
+
+
+              
             },
             child: Text("Cerrar Sesión", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)) ,
           ),

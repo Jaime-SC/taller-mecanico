@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:taller_mecanico/pages/home_page.dart';
 import '../widgets/app_colors.dart'; // Importa el archivo app_colors.dart
@@ -94,10 +95,23 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(
                       height: 20,
                     ),
-                    loginButton(context, false, false, () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => HomePage()));
-                    })
+                    loginButton(context, true, true, () {
+                          FirebaseAuth.instance
+                              .createUserWithEmailAndPassword(
+                                  email: _emailTextController.text,
+                                  password: _passwordTextController.text)
+                              .then((value) {
+                                print("Nueva Cuenta Creada");
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HomePage(),
+                              ),
+                            ).onError((error, stackTrace) {
+                              print("Error ${error.toString()}");
+                            });
+                          });
+                        }),
                   ],
                 ),
               ),

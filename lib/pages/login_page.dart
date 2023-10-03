@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:taller_mecanico/pages/home_page.dart';
 import '../widgets/app_colors.dart'; // Importa el archivo app_colors.dart
@@ -39,7 +40,8 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.5), // Color de la sombra
+                        color:
+                            Colors.black.withOpacity(0.5), // Color de la sombra
                         spreadRadius: 1.25, // Cuánto se extiende la sombra
                         blurRadius: 7, // Cuánto se difumina la sombra
                         offset: Offset(
@@ -70,10 +72,18 @@ class _LoginPageState extends State<LoginPage> {
                           height: 20,
                         ),
                         loginButton(context, true, true, () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => HomePage()));
+                          FirebaseAuth.instance
+                              .signInWithEmailAndPassword(
+                                  email: _emailTextController.text,
+                                  password: _passwordTextController.text)
+                              .then((value) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => HomePage()));
+                          }).onError((error, stackTrace) {
+                            print("Error ${error.toString()}");
+                          });
                         }),
                         opcionRegistro(context),
                       ],
@@ -84,7 +94,8 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-        AppColors.colorBase, // Utiliza la lista de colores desde app_colors.dart
+        AppColors
+            .colorBase, // Utiliza la lista de colores desde app_colors.dart
       ),
     );
   }

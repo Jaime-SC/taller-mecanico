@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "590908195503",
+    "project_id": "tallermecanico-97e5f",
+    "storage_bucket": "tallermecanico-97e5f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:590908195503:android:5f1517eedfcabb4bda4a5a",
+        "android_client_info": {
+          "package_name": "com.example.taller_mecanico"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAB9WPPeJ4WTYGnAebbr5yXl3Ol9iYSd5o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
