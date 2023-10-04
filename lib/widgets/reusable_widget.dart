@@ -1,5 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../pages/clientes_page.dart';
+import '../pages/login_page.dart';
+import '../pages/ordenTrabajo_page.dart';
 import '../pages/register_page.dart';
+import '../pages/vehiculos_page.dart';
+import 'app_colors.dart';
 
 Image logoWidget(String imageName) {
   return Image.asset(
@@ -10,6 +16,81 @@ Image logoWidget(String imageName) {
     color: Colors.white,
   );
 }
+
+class AppDrawer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: AppColors.colorBase,
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: Text(
+              'Menú de Navegación',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text('Clientes'),
+            onTap: () {
+              // Navegar a la página de clientes.dart
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ClientesPage()),
+              );
+            },
+          ),
+          ListTile(
+            title: Text('Vehículos'),
+            onTap: () {
+              // Navegar a la página de vehiculos.dart
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => VehiculosPage()),
+              );
+            },
+          ),
+          ListTile(
+            title: Text('Orden de Trabajo'),
+            onTap: () {
+              // Navegar a la página de ordenTrabajo.dart
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => OrdenTrabajoPage()),
+              );
+            },
+          ),
+          ListTile(
+            title: Text('Cerrar Sesión'),
+            onTap: () {
+              FirebaseAuth.instance.signOut().then((value) {
+                print("Sesión Cerrada");
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+              });
+            },
+          ),
+          // Agrega más elementos de menú según tus necesidades
+        ],
+      ),
+    );
+  }
+}
+
+
+
 
 TextField reusableTextField(String text, IconData icon, bool isPasswordType,
     TextEditingController controller) {

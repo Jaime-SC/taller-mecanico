@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import '../widgets/app_colors.dart'; // Importa el archivo app_colors.dart
 import '../widgets/reusable_widget.dart';
-//import 'drawer_widget.dart'; // Importa el widget del Drawer
+//import '../widgets/drawer_widget.dart'; // Importa el widget del Drawer
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key});
+class OrdenTrabajoPage extends StatefulWidget {
+  const OrdenTrabajoPage({Key? key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<OrdenTrabajoPage> createState() => _OrdenTrabajoPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _OrdenTrabajoPageState extends State<OrdenTrabajoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mi Aplicación'), // Cambia el título según tu aplicación
+        title: Text('Orden de Trabajo'), // Cambia el título según tu aplicación
       ),
       drawer: AppDrawer(), // Usa el widget del Drawer aquí
       body: Container(
@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
         ),
         child: Center(
           child: Text(
-            'Contenido de la página principal',
+            'Contenido de la página de Orden de Trabajo',
             style: TextStyle(
               color: Colors.white,
               fontSize: 20,
