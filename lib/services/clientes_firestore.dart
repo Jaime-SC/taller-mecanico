@@ -27,87 +27,104 @@ class ClientesDataTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DataTable(
-      columns: [
-        DataColumn(
-          label: Text('rut_cliente',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-        ),
-        DataColumn(
-          label: Text('nom_cliente',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-        ),
-        DataColumn(
-          label: Text('ape_cliente',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-        ),
-        DataColumn(
-          label: Text('dir_cliente',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-        ),
-        DataColumn(
-          label: Text('tel_cliente',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-        ),
-        DataColumn(
-          label: Text('email_cliente',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-        ),
-        DataColumn(
-          label: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold)),
-        ),
-      ],
-      rows: documentSnapshots?.map((documentSnapshot) {
-            final cliente = Cliente(
-              rut: documentSnapshot["rut_cliente"] ?? "",
-              nombre: documentSnapshot["nom_cliente"] ?? "",
-              apellido: documentSnapshot["ape_cliente"] ?? "",
-              direccion: documentSnapshot["dir_cliente"] ?? "",
-              telefono: documentSnapshot["tel_cliente"] ?? "",
-              email: documentSnapshot["email_cliente"] ?? "",
-            );
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.25), // Color de la sombra
+            spreadRadius: 5, // Radio de expansión de la sombra
+            blurRadius: 7, // Radio de desenfoque de la sombra
+            offset: Offset(
+                0, 3), // Desplazamiento de la sombra (horizontal, vertical)
+          ),
+        ],
+      ),
+      child: DataTable(
+        columns: [
+          DataColumn(
+            label: Text('RUT',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          DataColumn(
+            label: Text('NOMBRE',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          DataColumn(
+            label: Text('APELLIDO',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          DataColumn(
+            label: Text('DIRECCION',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          DataColumn(
+            label: Text('TELEFONO',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          DataColumn(
+            label: Text('EMAIL',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          DataColumn(
+            label:
+                Text('ACCIONES', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+        rows: documentSnapshots?.map((documentSnapshot) {
+              final cliente = Cliente(
+                rut: documentSnapshot["rut_cliente"] ?? "",
+                nombre: documentSnapshot["nom_cliente"] ?? "",
+                apellido: documentSnapshot["ape_cliente"] ?? "",
+                direccion: documentSnapshot["dir_cliente"] ?? "",
+                telefono: documentSnapshot["tel_cliente"] ?? "",
+                email: documentSnapshot["email_cliente"] ?? "",
+              );
 
-            return DataRow(
-              cells: [
-                DataCell(Text(cliente.rut)),
-                DataCell(Text(cliente.nombre)),
-                DataCell(Text(cliente.apellido)),
-                DataCell(Text(cliente.direccion)),
-                DataCell(Text(cliente.telefono)),
-                DataCell(Text(cliente.email)),
-                DataCell(
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.delete),
-                        color: Colors.red,
-                        onPressed: () {
-                          FirestoreService()
-                              .eliminarCliente(documentSnapshot.id);
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        color: Colors.blue,
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AgregarEditarClienteDialog(
-                                cliente: cliente,
-                                clienteId: documentSnapshot.id,
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ],
+              return DataRow(
+                cells: [
+                  DataCell(Text(cliente.rut)),
+                  DataCell(Text(cliente.nombre)),
+                  DataCell(Text(cliente.apellido)),
+                  DataCell(Text(cliente.direccion)),
+                  DataCell(Text(cliente.telefono)),
+                  DataCell(Text(cliente.email)),
+                  DataCell(
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          color: Color(0XFFD60019),
+                          onPressed: () {
+                            FirestoreService()
+                                .eliminarCliente(documentSnapshot.id);
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          color: Color(0XFF004B85),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AgregarEditarClienteDialog(
+                                  cliente: cliente,
+                                  clienteId: documentSnapshot.id,
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            );
-          }).toList() ??
-          [],
+                ],
+              );
+            }).toList() ??
+            [],
+      ),
     );
   }
 }
@@ -192,7 +209,7 @@ class _AgregarEditarClienteDialogState
             ElevatedButton(
               onPressed: _guardarCliente,
               style: ElevatedButton.styleFrom(
-                primary: Colors.blue,
+                primary: Color(0XFF004B85),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),

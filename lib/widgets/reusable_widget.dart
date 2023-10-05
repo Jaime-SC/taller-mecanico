@@ -18,6 +18,15 @@ Image logoWidget(String imageName) {
   );
 }
 
+Image logoDrawer(String imageName) {
+  return Image.asset(
+    imageName,
+    
+  
+    color: Colors.white,
+  );
+}
+
 // Widget del menú de navegación
 class AppDrawer extends StatelessWidget {
   @override
@@ -28,19 +37,9 @@ class AppDrawer extends StatelessWidget {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: AppColors.colorBase,
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
+              color: Color(0xff004B85)
             ),
-            child: Text(
-              'Menú de Navegación',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-              ),
-            ),
+            child: logoDrawer("assets/images/logo1.png"),
           ),
           ListTile(
             title: Text('Clientes'),
@@ -203,19 +202,20 @@ Widget textFieldAgregarClientes(
     TextEditingController controller,
   ) {
     return Container(
+
       margin: EdgeInsets.symmetric(vertical: 5),
       child: TextField(
         controller: controller,
         obscureText: isPassword,
         enableSuggestions: !isPassword,
         autocorrect: !isPassword,
-        cursorColor: Colors.blue,
+        cursorColor: Color(0XFFD60019),
         style: TextStyle(color: Colors.black),
         decoration: InputDecoration(
           labelText: labelText,
-          prefixIcon: Icon(prefixIcon, color: Colors.blue),
+          prefixIcon: Icon(prefixIcon, color: Color(0XFF004B85), size: TextSelectionToolbar.kHandleSize),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
+            borderRadius: BorderRadius.circular(30),
           ),
         ),
       ),

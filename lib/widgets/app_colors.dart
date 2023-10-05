@@ -18,5 +18,14 @@ class AppColors {
     
   ];
 
+  static final List<Color> colorClientePage = [    
+    Color(0xff008452),
+    Color(0xff40A37E),
+    Color(0xff80C2A9),
+    Color(0xffC0E1D4),
+    Color(0xffFFFFFF)
+    
+  ];
+
   // Define otras listas de colores aquí si es necesario
 }

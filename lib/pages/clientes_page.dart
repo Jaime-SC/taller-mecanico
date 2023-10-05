@@ -18,6 +18,8 @@ class _ClientesPageState extends State<ClientesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        foregroundColor: Colors.white,
+        backgroundColor: Color(0xff008452),
         title: Text('Clientes'),
       ),
       drawer: AppDrawer(),
@@ -30,7 +32,7 @@ class _ClientesPageState extends State<ClientesPage> {
             return Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: AppColors.colorBase,
+                  colors: AppColors.colorClientePage,
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
@@ -39,9 +41,13 @@ class _ClientesPageState extends State<ClientesPage> {
                 padding: const EdgeInsets.all(25.0),
                 child: Column(
                   children: [
+                    
                     Center(
-                      child: ClientesDataTable(
-                        documentSnapshots: snapshot.data?.docs,
+                      child: Container(
+                        
+                        child: ClientesDataTable(
+                          documentSnapshots: snapshot.data?.docs,
+                        ),
                       ),
                     ),
                   ],
@@ -59,6 +65,8 @@ class _ClientesPageState extends State<ClientesPage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Color(0XFF004B85),
+        foregroundColor: Colors.white,
         onPressed: () {
           // Mostrar el diálogo para agregar un nuevo cliente.
           showDialog(
