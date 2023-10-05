@@ -46,7 +46,7 @@ class AppDrawer extends StatelessWidget {
               // Navegar a la página de clientes.dart
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ClientesPage()),
+                MaterialPageRoute(builder: (context) => ClientesPage(title: 'Clientes',)),
               );
             },
           ),
