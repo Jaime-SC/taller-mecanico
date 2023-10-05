@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../pages/clientes_page.dart';
 import '../pages/login_page.dart';
 import '../pages/ordenTrabajo_page.dart';
@@ -7,6 +7,7 @@ import '../pages/register_page.dart';
 import '../pages/vehiculos_page.dart';
 import 'app_colors.dart';
 
+// Widget para mostrar una imagen con color personalizado
 Image logoWidget(String imageName) {
   return Image.asset(
     imageName,
@@ -17,6 +18,7 @@ Image logoWidget(String imageName) {
   );
 }
 
+// Widget del menú de navegación
 class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -43,17 +45,18 @@ class AppDrawer extends StatelessWidget {
           ListTile(
             title: Text('Clientes'),
             onTap: () {
-              // Navegar a la página de clientes.dart
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ClientesPage(title: 'Clientes',)),
+                MaterialPageRoute(
+                    builder: (context) => ClientesPage(
+                          title: 'Clientes',
+                        )),
               );
             },
           ),
           ListTile(
             title: Text('Vehículos'),
             onTap: () {
-              // Navegar a la página de vehiculos.dart
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => VehiculosPage()),
@@ -63,7 +66,6 @@ class AppDrawer extends StatelessWidget {
           ListTile(
             title: Text('Orden de Trabajo'),
             onTap: () {
-              // Navegar a la página de ordenTrabajo.dart
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => OrdenTrabajoPage()),
@@ -82,16 +84,13 @@ class AppDrawer extends StatelessWidget {
               });
             },
           ),
-          // Agrega más elementos de menú según tus necesidades
         ],
       ),
     );
   }
 }
 
-
-
-
+// Widget reutilizable para campos de texto
 TextField reusableTextField(String text, IconData icon, bool isPasswordType,
     TextEditingController controller) {
   return TextField(
@@ -112,8 +111,9 @@ TextField reusableTextField(String text, IconData icon, bool isPasswordType,
       floatingLabelBehavior: FloatingLabelBehavior.never,
       fillColor: Color(0xFF000000).withOpacity(0.5),
       border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          borderSide: const BorderSide(width: 0, style: BorderStyle.none)),
+        borderRadius: BorderRadius.circular(30.0),
+        borderSide: const BorderSide(width: 0, style: BorderStyle.none),
+      ),
     ),
     keyboardType: isPasswordType
         ? TextInputType.visiblePassword
@@ -121,35 +121,8 @@ TextField reusableTextField(String text, IconData icon, bool isPasswordType,
   );
 }
 
-// Container firebaseUIButton(BuildContext context, String title, Function onTap) {
-//   return Container(
-//     width: MediaQuery.of(context).size.width,
-//     height: 50,
-//     margin: const EdgeInsets.fromLTRB(0, 10, 0, 20),
-//     decoration: BoxDecoration(borderRadius: BorderRadius.circular(90)),
-//     child: ElevatedButton(
-//       onPressed: () {
-//         onTap();
-//       },
-//       child: Text(
-//         title,
-//         style: const TextStyle(
-//             color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 16),
-//       ),
-//       style: ButtonStyle(
-//           backgroundColor: MaterialStateProperty.resolveWith((states) {
-//             if (states.contains(MaterialState.pressed)) {
-//               return Colors.black26;
-//             }
-//             return Colors.white;
-//           }),
-//           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-//               RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)))),
-//     ),
-//   );
-// }
-
-Container loginButton(BuildContext context, bool, isLogin, Function onTap) {
+// Widget para un botón de inicio de sesión o registro
+Container loginButton(BuildContext context, bool isLogin, Function onTap) {
   return Container(
     width: MediaQuery.of(context).size.width,
     height: 50,
@@ -160,43 +133,53 @@ Container loginButton(BuildContext context, bool, isLogin, Function onTap) {
         onTap();
       },
       child: Text(
-        isLogin ? 'INICIAR SESION' : 'REGISTRARSE',
+        isLogin ? 'INICIAR SESIÓN' : 'REGISTRARSE',
         style: const TextStyle(
-            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
       ),
       style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.pressed)) {
-              return Colors.black26;
-            }
-            return Color(0xFF004B85);
-          }),
-          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))),
+        backgroundColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.pressed)) {
+            return Colors.black26;
+          }
+          return Color(0xFF004B85);
+        }),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      ),
     ),
   );
 }
 
+// Widget para mostrar un enlace de registro
 Row opcionRegistro(BuildContext context) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
-      const Text("Para crear nueva cuenta, presione",
-          style: TextStyle(color: Colors.black)),
+      const Text(
+        "Para crear nueva cuenta, presione",
+        style: TextStyle(color: Colors.black),
+      ),
       GestureDetector(
         onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage()));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => RegisterPage()));
         },
         child: const Text(
           " Aquí",
-          style: TextStyle(color: Color(0xffD60019), fontWeight: FontWeight.bold),
+          style:
+              TextStyle(color: Color(0xffD60019), fontWeight: FontWeight.bold),
         ),
       )
     ],
   );
 }
 
-
+// Widget para crear un contenedor con gradiente de colores
 Widget buildGradientContainer(Widget child, List<Color> colors) {
   return Container(
     width: double.infinity,
@@ -213,4 +196,28 @@ Widget buildGradientContainer(Widget child, List<Color> colors) {
 }
 
 
-
+Widget textFieldAgregarClientes(
+    String labelText,
+    IconData prefixIcon,
+    bool isPassword,
+    TextEditingController controller,
+  ) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 5),
+      child: TextField(
+        controller: controller,
+        obscureText: isPassword,
+        enableSuggestions: !isPassword,
+        autocorrect: !isPassword,
+        cursorColor: Colors.blue,
+        style: TextStyle(color: Colors.black),
+        decoration: InputDecoration(
+          labelText: labelText,
+          prefixIcon: Icon(prefixIcon, color: Colors.blue),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+        ),
+      ),
+    );
+  }

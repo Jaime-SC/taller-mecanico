@@ -95,7 +95,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(
                       height: 20,
                     ),
-                    loginButton(context, true, true, () {
+                    loginButton(context, true,  () {
                           FirebaseAuth.instance
                               .createUserWithEmailAndPassword(
                                   email: _emailTextController.text,

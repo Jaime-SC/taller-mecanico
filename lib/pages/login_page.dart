@@ -71,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(
                           height: 20,
                         ),
-                        loginButton(context, true, true, () {
+                        loginButton(context, true,  () {
                           FirebaseAuth.instance
                               .signInWithEmailAndPassword(
                                   email: _emailTextController.text,

@@ -1,0 +1,18 @@
+[
+    {
+        "rut_cliente": "12345678-9",
+        "nom_cliente": "Cliente 1",
+        "ape_cliente": "Apellido 1",
+        "dir_cliente": "Dirección 1",
+        "tel_cliente": "123456789",
+        "email_cliente": "cliente1@example.com"
+    },
+    {
+        "rut_cliente": "98765432-1",
+        "nom_cliente": "Cliente 2",
+        "ape_cliente": "Apellido 2",
+        "dir_cliente": "Dirección 2",
+        "tel_cliente": "987654321",
+        "email_cliente": "cliente2@example.com"
+    }
+]
