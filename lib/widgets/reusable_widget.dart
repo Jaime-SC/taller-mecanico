@@ -8,8 +8,8 @@ import '../pages/vehiculos_page.dart';
 Image logoWidget(String imageName) => Image.asset(
   imageName,
   fit: BoxFit.fitWidth,
-  width: 340,
-  height: 340,
+  width: 300,
+  height: 300,
   color: Colors.white,
 );
 
