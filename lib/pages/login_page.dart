@@ -1,11 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:taller_mecanico/pages/home_page.dart';
-import '../widgets/app_colors.dart'; // Importa el archivo app_colors.dart
+import '../widgets/app_colors.dart';
 import '../widgets/reusable_widget.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -15,37 +15,72 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController _passwordTextController = TextEditingController();
   TextEditingController _emailTextController = TextEditingController();
 
+  bool _showCustomNotification = false;
+  String _customNotificationMessage = "";
+  Color? _customNotificationBackgroundColor;
+
+  void _showCustomNotificationMessage(String message, {Color? backgroundColor}) {
+    setState(() {
+      _customNotificationMessage = message;
+      _customNotificationBackgroundColor =
+          backgroundColor ?? const Color.fromARGB(255, 227, 89, 79);
+      _showCustomNotification = true;
+    });
+
+    Future.delayed(Duration(seconds: 5), () {
+      setState(() {
+        _showCustomNotification = false;
+      });
+    });
+  }
+
+  void _showLoginSuccessAlert() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Inicio de sesión exitoso"),
+          content: Text("Direccionando a página home...."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(),
+                  ),
+                );
+              },
+              child: Text("Continuar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: buildGradientContainer(
         SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              20,
-              0,
-              //MediaQuery.of(context).size.height * 0.2,
-              20,
-              0,
-            ),
+            padding: EdgeInsets.all(20),
             child: Column(
               children: <Widget>[
                 logoWidget("assets/images/logo1.png"),
-                const SizedBox(
-                  height: 30,
-                ),
+                SizedBox(height: 5),
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(
-                        color:
-                            Colors.black.withOpacity(0.5), // Color de la sombra
-                        spreadRadius: 1.25, // Cuánto se extiende la sombra
-                        blurRadius: 7, // Cuánto se difumina la sombra
-                        offset: Offset(
-                            0, 3), // Offset de la sombra (horizontal, vertical)
+                        color: Colors.black.withOpacity(0.5),
+                        spreadRadius: 1.25,
+                        blurRadius: 7,
+                        offset: Offset(0, 3),
                       ),
                     ],
                   ),
@@ -59,33 +94,47 @@ class _LoginPageState extends State<LoginPage> {
                           false,
                           _emailTextController,
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
+                        SizedBox(height: 20),
                         reusableTextField(
                           "Contraseña",
                           Icons.lock_outline,
                           true,
                           _passwordTextController,
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        loginButton(context, true,  () {
+                        SizedBox(height: 20),
+                        loginButton(context, true, () {
                           FirebaseAuth.instance
                               .signInWithEmailAndPassword(
-                                  email: _emailTextController.text,
-                                  password: _passwordTextController.text)
+                                email: _emailTextController.text,
+                                password: _passwordTextController.text,
+                              )
                               .then((value) {
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => HomePage()));
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HomePage(),
+                              ),
+                            );
                           }).onError((error, stackTrace) {
-                            print("Error ${error.toString()}");
+                            _showCustomNotificationMessage(
+                              "Error al iniciar sesión. Verifica credenciales y vuelve a intentar.",
+                            );
                           });
                         }),
                         opcionRegistro(context),
+                        if (_showCustomNotification)
+                          Container(
+                            margin: EdgeInsets.symmetric(vertical: 16),
+                            decoration: BoxDecoration(
+                              color: _customNotificationBackgroundColor,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: EdgeInsets.all(16),
+                            child: Text(
+                              _customNotificationMessage,
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -94,8 +143,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-        AppColors
-            .colorBase, // Utiliza la lista de colores desde app_colors.dart
+        AppColors.colorBase,
       ),
     );
   }

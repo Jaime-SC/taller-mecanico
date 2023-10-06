@@ -20,10 +20,19 @@ class FirestoreService {
   }
 }
 
-class ClientesDataTable extends StatelessWidget {
+class ClientesDataTable extends StatefulWidget {
   final List<QueryDocumentSnapshot>? documentSnapshots;
 
   const ClientesDataTable({Key? key, this.documentSnapshots}) : super(key: key);
+
+  @override
+  _ClientesDataTableState createState() => _ClientesDataTableState();
+}
+
+class _ClientesDataTableState extends State<ClientesDataTable> {
+  int _currentSortColumnIndex = 0;
+  bool _currentSortAscending = true;
+  int _sortClickCount = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -34,98 +43,144 @@ class ClientesDataTable extends StatelessWidget {
         border: Border.all(color: Colors.black, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25), // Color de la sombra
-            spreadRadius: 5, // Radio de expansión de la sombra
-            blurRadius: 7, // Radio de desenfoque de la sombra
-            offset: Offset(
-                0, 3), // Desplazamiento de la sombra (horizontal, vertical)
+            color: Colors.black.withOpacity(0.25),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: Offset(0, 3),
           ),
         ],
       ),
       child: DataTable(
         columns: [
+          buildSortableHeader('RUT', (cliente) => cliente.rut),
+          buildSortableHeader('NOMBRE', (cliente) => cliente.nombre),
+          buildSortableHeader('APELLIDO', (cliente) => cliente.apellido),
+          buildSortableHeader('DIRECCION', (cliente) => cliente.direccion),
+          buildSortableHeader('TELEFONO', (cliente) => cliente.telefono),
+          buildSortableHeader('EMAIL', (cliente) => cliente.email),
           DataColumn(
-            label: Text('RUT',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          DataColumn(
-            label: Text('NOMBRE',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          DataColumn(
-            label: Text('APELLIDO',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          DataColumn(
-            label: Text('DIRECCION',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          DataColumn(
-            label: Text('TELEFONO',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          DataColumn(
-            label: Text('EMAIL',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          DataColumn(
-            label:
-                Text('ACCIONES', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: Text('ACCIONES', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
-        rows: documentSnapshots?.map((documentSnapshot) {
-              final cliente = Cliente(
-                rut: documentSnapshot["rut_cliente"] ?? "",
-                nombre: documentSnapshot["nom_cliente"] ?? "",
-                apellido: documentSnapshot["ape_cliente"] ?? "",
-                direccion: documentSnapshot["dir_cliente"] ?? "",
-                telefono: documentSnapshot["tel_cliente"] ?? "",
-                email: documentSnapshot["email_cliente"] ?? "",
-              );
+        rows: widget.documentSnapshots?.map((documentSnapshot) {
+          final cliente = Cliente(
+            rut: documentSnapshot["rut_cliente"] ?? "",
+            nombre: documentSnapshot["nom_cliente"] ?? "",
+            apellido: documentSnapshot["ape_cliente"] ?? "",
+            direccion: documentSnapshot["dir_cliente"] ?? "",
+            telefono: documentSnapshot["tel_cliente"] ?? "",
+            email: documentSnapshot["email_cliente"] ?? "",
+          );
 
-              return DataRow(
-                cells: [
-                  DataCell(Text(cliente.rut)),
-                  DataCell(Text(cliente.nombre)),
-                  DataCell(Text(cliente.apellido)),
-                  DataCell(Text(cliente.direccion)),
-                  DataCell(Text(cliente.telefono)),
-                  DataCell(Text(cliente.email)),
-                  DataCell(
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.delete),
-                          color: Color(0XFFD60019),
-                          onPressed: () {
-                            FirestoreService()
-                                .eliminarCliente(documentSnapshot.id);
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.edit),
-                          color: Color(0XFF004B85),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AgregarEditarClienteDialog(
-                                  cliente: cliente,
-                                  clienteId: documentSnapshot.id,
-                                );
-                              },
+          return DataRow(
+            cells: [
+              DataCell(Text(cliente.rut)),
+              DataCell(Text(cliente.nombre)),
+              DataCell(Text(cliente.apellido)),
+              DataCell(Text(cliente.direccion)),
+              DataCell(Text(cliente.telefono)),
+              DataCell(Text(cliente.email)),
+              DataCell(
+                Row(
+                  children: [
+                    buildIconButton(
+                      Icons.delete,
+                      Color(0XFFD60019),
+                      () {
+                        FirestoreService()
+                            .eliminarCliente(documentSnapshot.id);
+                      },
+                    ),
+                    buildIconButton(
+                      Icons.edit,
+                      Color(0XFF004B85),
+                      () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AgregarEditarClienteDialog(
+                              cliente: cliente,
+                              clienteId: documentSnapshot.id,
                             );
                           },
-                        ),
-                      ],
+                        );
+                      },
                     ),
-                  ),
-                ],
-              );
-            }).toList() ??
+                  ],
+                ),
+              ),
+            ],
+          );
+        }).toList() ??
             [],
       ),
     );
+  }
+
+  DataColumn buildSortableHeader(String label, Function(Cliente) getField) {
+    return DataColumn(
+      label: Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+      onSort: (columnIndex, ascending) {
+        _sort<Comparable>((cliente) => getField(cliente), columnIndex, ascending);
+      },
+    );
+  }
+
+  IconButton buildIconButton(IconData icon, Color color, Function onPressed) {
+    return IconButton(
+      icon: Icon(icon),
+      color: color,
+      onPressed: onPressed as void Function()?,
+    );
+  }
+
+  void _resetSorting() {
+    setState(() {
+      _currentSortColumnIndex = 0;
+      _currentSortAscending = true;
+    });
+  }
+
+  void _sort<T>(Comparable<T> Function(Cliente cliente) getField, int columnIndex, bool ascending) {
+    if (_currentSortColumnIndex == columnIndex) {
+      setState(() {
+        _currentSortAscending = !_currentSortAscending;
+      });
+    } else {
+      setState(() {
+        _currentSortColumnIndex = columnIndex;
+        _currentSortAscending = true;
+      });
+    }
+
+    widget.documentSnapshots?.sort((a, b) {
+      var aValue = getField(Cliente(
+        rut: a["rut_cliente"] ?? "",
+        nombre: a["nom_cliente"] ?? "",
+        apellido: a["ape_cliente"] ?? "",
+        direccion: a["dir_cliente"] ?? "",
+        telefono: a["tel_cliente"] ?? "",
+        email: a["email_cliente"] ?? "",
+      ));
+      var bValue = getField(Cliente(
+        rut: b["rut_cliente"] ?? "",
+        nombre: b["nom_cliente"] ?? "",
+        apellido: b["ape_cliente"] ?? "",
+        direccion: b["dir_cliente"] ?? "",
+        telefono: b["tel_cliente"] ?? "",
+        email: b["email_cliente"] ?? "",
+      ));
+
+      if (!ascending) {
+        var temp = aValue;
+        aValue = bValue;
+        bValue = temp;
+      }
+
+      final comparison = aValue.compareTo(bValue as T);
+
+      return _currentSortAscending ? comparison : -comparison;
+    });
   }
 }
 
@@ -154,7 +209,6 @@ class _AgregarEditarClienteDialogState
   void initState() {
     super.initState();
     if (widget.cliente != null) {
-      // Llena los controladores de texto con la información del cliente.
       rutController.text = widget.cliente!.rut;
       nombreController.text = widget.cliente!.nombre;
       apellidoController.text = widget.cliente!.apellido;
@@ -239,15 +293,13 @@ class _AgregarEditarClienteDialogState
     );
 
     if (widget.clienteId != null) {
-      // Actualizar cliente existente
       _firestoreService.actualizarCliente(widget.clienteId!, cliente);
     } else {
-      // Agregar nuevo cliente
       _firestoreService.agregarCliente(cliente);
     }
 
-    Navigator.of(context)
-        .pop(); // Cierra el diálogo después de guardar/actualizar.
+    Navigator.of(context).pop();
+    setState(() {});
   }
 }
 
@@ -262,4 +314,3 @@ void deleteCliente(String clienteId) {
     },
   );
 }
-

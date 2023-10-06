@@ -1,9 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/cliente.dart';
 import '../widgets/app_colors.dart';
 import '../widgets/reusable_widget.dart';
 import '../services/clientes_firestore.dart';
+import 'login_page.dart';
 
 class ClientesPage extends StatefulWidget {
   const ClientesPage({Key? key, required this.title}) : super(key: key);
@@ -75,7 +77,23 @@ class _ClientesPageState extends State<ClientesPage> {
         backgroundColor: Color(0xff008452),
         title: Text('Clientes'),
       ),
-      drawer: AppDrawer(),
+      drawer: AppDrawer(
+        onSignOut: () async {
+          try {
+            await FirebaseAuth.instance
+                .signOut(); // Cierra la sesión de Firebase
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    LoginPage(), // Redirige a la página de inicio de sesión
+              ),
+            );
+          } catch (e) {
+            print("Error al cerrar sesión: $e"); // Maneja errores si los hay
+          }
+        },
+      ),
       body: Stack(
         children: [
           Container(
@@ -89,19 +107,75 @@ class _ClientesPageState extends State<ClientesPage> {
           ),
           Column(
             children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    busquedaCliente(),
-                    Padding(
-                      padding: const EdgeInsets.all(25.0),
-                      child: Center(
-                        child: ClientesDataTable(
-                          documentSnapshots: filteredDocumentSnapshots,
-                        ),
+              Container(
+                alignment: Alignment.topCenter,
+                child: busquedaCliente(
+                  searchController,
+                  filterClientes,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(25.0),
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection("clientes")
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    }
+
+                    final documentSnapshots = snapshot.data?.docs;
+                    List<QueryDocumentSnapshot>? filteredData =
+                        documentSnapshots;
+
+                    // Aplicar filtro si hay un término de búsqueda
+                    if (searchController.text.isNotEmpty) {
+                      filteredData = documentSnapshots?.where((document) {
+                        final cliente = Cliente(
+                          rut: document["rut_cliente"] ?? "",
+                          nombre: document["nom_cliente"] ?? "",
+                          apellido: document["ape_cliente"] ?? "",
+                          direccion: document["dir_cliente"] ?? "",
+                          telefono: document["tel_cliente"] ?? "",
+                          email: document["email_cliente"] ?? "",
+                        );
+
+                        final searchTermLowerCase =
+                            searchController.text.toLowerCase();
+
+                        return cliente.rut
+                                .toLowerCase()
+                                .contains(searchTermLowerCase) ||
+                            cliente.nombre
+                                .toLowerCase()
+                                .contains(searchTermLowerCase) ||
+                            cliente.apellido
+                                .toLowerCase()
+                                .contains(searchTermLowerCase) ||
+                            cliente.direccion
+                                .toLowerCase()
+                                .contains(searchTermLowerCase) ||
+                            cliente.telefono
+                                .toLowerCase()
+                                .contains(searchTermLowerCase) ||
+                            cliente.email
+                                .toLowerCase()
+                                .contains(searchTermLowerCase);
+                      }).toList();
+                    }
+
+                    return Center(
+                      child: ClientesDataTable(
+                        documentSnapshots: filteredData,
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
             ],
@@ -120,36 +194,6 @@ class _ClientesPageState extends State<ClientesPage> {
           );
         },
         child: Icon(Icons.add),
-      ),
-    );
-  }
-
-  Container busquedaCliente() {
-    return Container(
-      width: 500, // Usar todo el ancho disponible
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: TextField(
-        cursorColor: Color(0XFFD60019),
-        controller: searchController,
-        onChanged: filterClientes,
-        decoration: InputDecoration(
-          hintText: 'Buscar clientes',
-          prefixIcon: Icon(Icons.search),
-          border: InputBorder.none,
-        ),
       ),
     );
   }
