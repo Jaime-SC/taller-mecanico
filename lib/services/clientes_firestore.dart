@@ -32,7 +32,6 @@ class ClientesDataTable extends StatefulWidget {
 class _ClientesDataTableState extends State<ClientesDataTable> {
   int _currentSortColumnIndex = 0;
   bool _currentSortAscending = true;
-  int _sortClickCount = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +58,7 @@ class _ClientesDataTableState extends State<ClientesDataTable> {
           buildSortableHeader('TELEFONO', (cliente) => cliente.telefono),
           buildSortableHeader('EMAIL', (cliente) => cliente.email),
           DataColumn(
-            label: Text('ACCIONES', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: Text('ACCIONES', style: TextStyle(fontSize: 17.5, fontFamily: 'SpaceMonoNerdFont', fontWeight: FontWeight.bold)),
           ),
         ],
         rows: widget.documentSnapshots?.map((documentSnapshot) {
@@ -74,12 +73,12 @@ class _ClientesDataTableState extends State<ClientesDataTable> {
 
           return DataRow(
             cells: [
-              DataCell(Text(cliente.rut)),
-              DataCell(Text(cliente.nombre)),
-              DataCell(Text(cliente.apellido)),
-              DataCell(Text(cliente.direccion)),
-              DataCell(Text(cliente.telefono)),
-              DataCell(Text(cliente.email)),
+              DataCell(Text(cliente.rut, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
+              DataCell(Text(cliente.nombre, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
+              DataCell(Text(cliente.apellido, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
+              DataCell(Text(cliente.direccion, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
+              DataCell(Text(cliente.telefono, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
+              DataCell(Text(cliente.email, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
               DataCell(
                 Row(
                   children: [
@@ -119,7 +118,7 @@ class _ClientesDataTableState extends State<ClientesDataTable> {
 
   DataColumn buildSortableHeader(String label, Function(Cliente) getField) {
     return DataColumn(
-      label: Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+      label: Text(label, style: TextStyle(fontSize: 17.5, fontFamily: 'SpaceMonoNerdFont', fontWeight: FontWeight.bold)),
       onSort: (columnIndex, ascending) {
         _sort<Comparable>((cliente) => getField(cliente), columnIndex, ascending);
       },

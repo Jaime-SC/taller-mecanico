@@ -15,7 +15,7 @@ class _VehiculosPageState extends State<VehiculosPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Vehículos'), // Cambia el título según tu aplicación
+        title: Text('Vehículos', style: TextStyle(fontFamily: 'SpaceMonoNerdFont')), // Cambia el título según tu aplicación
       ),
       drawer: AppDrawer(), // Usa el widget del Drawer aquí
       body: Container(

@@ -1,18 +1,202 @@
 [
     {
         "rut_cliente": "12345678-9",
-        "nom_cliente": "Cliente 1",
-        "ape_cliente": "Apellido 1",
-        "dir_cliente": "Dirección 1",
+        "nom_cliente": "Juan",
+        "ape_cliente": "Pérez",
+        "dir_cliente": "123 Calle Principal, Ciudad A",
         "tel_cliente": "123456789",
-        "email_cliente": "cliente1@example.com"
+        "email_cliente": "juanperez@example.com"
     },
     {
         "rut_cliente": "98765432-1",
-        "nom_cliente": "Cliente 2",
-        "ape_cliente": "Apellido 2",
-        "dir_cliente": "Dirección 2",
+        "nom_cliente": "María",
+        "ape_cliente": "González",
+        "dir_cliente": "456 Avenida Central, Ciudad B",
         "tel_cliente": "987654321",
-        "email_cliente": "cliente2@example.com"
+        "email_cliente": "mariagonzalez@example.com"
+    },
+    {
+        "rut_cliente": "34567890-1",
+        "nom_cliente": "Luis",
+        "ape_cliente": "Rodríguez",
+        "dir_cliente": "789 Calle Secundaria, Ciudad C",
+        "tel_cliente": "345678901",
+        "email_cliente": "luisrodriguez@example.com"
+    },
+    {
+        "rut_cliente": "45678901-2",
+        "nom_cliente": "Ana",
+        "ape_cliente": "Martínez",
+        "dir_cliente": "234 Avenida Principal, Ciudad D",
+        "tel_cliente": "456789012",
+        "email_cliente": "anamartinez@example.com"
+    },
+    {
+        "rut_cliente": "56789012-3",
+        "nom_cliente": "Carlos",
+        "ape_cliente": "López",
+        "dir_cliente": "567 Calle Central, Ciudad E",
+        "tel_cliente": "567890123",
+        "email_cliente": "carloslopez@example.com"
+    },
+    {
+        "rut_cliente": "67890123-4",
+        "nom_cliente": "Laura",
+        "ape_cliente": "Fernández",
+        "dir_cliente": "890 Avenida Principal, Ciudad F",
+        "tel_cliente": "678901234",
+        "email_cliente": "laurafernandez@example.com"
+    },
+    {
+        "rut_cliente": "78901234-5",
+        "nom_cliente": "Pedro",
+        "ape_cliente": "Gómez",
+        "dir_cliente": "123 Calle Secundaria, Ciudad G",
+        "tel_cliente": "789012345",
+        "email_cliente": "pedrogomez@example.com"
+    },
+    {
+        "rut_cliente": "89012345-6",
+        "nom_cliente": "Sofía",
+        "ape_cliente": "Hernández",
+        "dir_cliente": "456 Avenida Central, Ciudad H",
+        "tel_cliente": "890123456",
+        "email_cliente": "sofiahernandez@example.com"
+    },
+    {
+        "rut_cliente": "90123456-7",
+        "nom_cliente": "Javier",
+        "ape_cliente": "Díaz",
+        "dir_cliente": "789 Calle Principal, Ciudad I",
+        "tel_cliente": "901234567",
+        "email_cliente": "javierdiaz@example.com"
+    },
+    {
+        "rut_cliente": "01234567-8",
+        "nom_cliente": "Isabel",
+        "ape_cliente": "Torres",
+        "dir_cliente": "234 Avenida Secundaria, Ciudad J",
+        "tel_cliente": "012345678",
+        "email_cliente": "isabeltorres@example.com"
+    },
+    {
+        "rut_cliente": "12345678-1",
+        "nom_cliente": "Miguel",
+        "ape_cliente": "Ramírez",
+        "dir_cliente": "567 Calle Secundaria, Ciudad K",
+        "tel_cliente": "123456781",
+        "email_cliente": "miguelramirez@example.com"
+    },
+    {
+        "rut_cliente": "23456789-2",
+        "nom_cliente": "Carmen",
+        "ape_cliente": "Silva",
+        "dir_cliente": "890 Avenida Central, Ciudad L",
+        "tel_cliente": "234567892",
+        "email_cliente": "carmensilva@example.com"
+    },
+    {
+        "rut_cliente": "34567890-3",
+        "nom_cliente": "Francisco",
+        "ape_cliente": "Paredes",
+        "dir_cliente": "123 Calle Principal, Ciudad M",
+        "tel_cliente": "345678903",
+        "email_cliente": "franciscoparedes@example.com"
+    },
+    {
+        "rut_cliente": "45678901-4",
+        "nom_cliente": "Elena",
+        "ape_cliente": "Sánchez",
+        "dir_cliente": "234 Avenida Central, Ciudad N",
+        "tel_cliente": "456789014",
+        "email_cliente": "elenasanchez@example.com"
+    },
+    {
+        "rut_cliente": "56789012-5",
+        "nom_cliente": "Andrés",
+        "ape_cliente": "Molina",
+        "dir_cliente": "567 Calle Secundaria, Ciudad O",
+        "tel_cliente": "567890125",
+        "email_cliente": "andresmolina@example.com"
+    },
+    {
+        "rut_cliente": "67890123-6",
+        "nom_cliente": "Raquel",
+        "ape_cliente": "Valdez",
+        "dir_cliente": "890 Avenida Principal, Ciudad P",
+        "tel_cliente": "678901236",
+        "email_cliente": "raquelvaldez@example.com"
+    },
+    {
+        "rut_cliente": "78901234-7",
+        "nom_cliente": "Diego",
+        "ape_cliente": "Ortega",
+        "dir_cliente": "123 Calle Secundaria, Ciudad Q",
+        "tel_cliente": "789012347",
+        "email_cliente": "diegoortega@example.com"
+    },
+    {
+        "rut_cliente": "89012345-8",
+        "nom_cliente": "Julia",
+        "ape_cliente": "Vargas",
+        "dir_cliente": "234 Avenida Principal, Ciudad R",
+        "tel_cliente": "890123458",
+        "email_cliente": "juliavargas@example.com"
+    },
+    {
+        "rut_cliente": "90123456-9",
+        "nom_cliente": "Hugo",
+        "ape_cliente": "Guerra",
+        "dir_cliente": "789 Calle Principal, Ciudad S",
+        "tel_cliente": "901234569",
+        "email_cliente": "hugoguerra@example.com"
+    },
+    {
+        "rut_cliente": "01234567-0",
+        "nom_cliente": "Marta",
+        "ape_cliente": "Luna",
+        "dir_cliente": "234 Avenida Central, Ciudad T",
+        "tel_cliente": "012345670",
+        "email_cliente": "martaluna@example.com"
+    },
+    {
+        "rut_cliente": "12345678-1",
+        "nom_cliente": "Roberto",
+        "ape_cliente": "Navarro",
+        "dir_cliente": "567 Calle Principal, Ciudad U",
+        "tel_cliente": "123456781",
+        "email_cliente": "robertonavarro@example.com"
+    },
+    {
+        "rut_cliente": "23456789-2",
+        "nom_cliente": "Lucía",
+        "ape_cliente": "Rojas",
+        "dir_cliente": "890 Avenida Secundaria, Ciudad V",
+        "tel_cliente": "234567892",
+        "email_cliente": "luciarojas@example.com"
+    },
+    {
+        "rut_cliente": "34567890-3",
+        "nom_cliente": "Alberto",
+        "ape_cliente": "Soto",
+        "dir_cliente": "642 Calle Secundaria, Ciudad J",
+        "tel_cliente": "345678903",
+        "email_cliente": "albertosoto@example.com"
+    },
+    {
+        "rut_cliente": "45678901-4",
+        "nom_cliente": "Carolina",
+        "ape_cliente": "Perez",
+        "dir_cliente": "182 Avenida Central, Ciudad K",
+        "tel_cliente": "456789014",
+        "email_cliente": "carolinaperez@example.com"
+    },
+    {
+        "rut_cliente": "56789012-5",
+        "nom_cliente": "Pablo",
+        "ape_cliente": "López",
+        "dir_cliente": "846 Avenida Secundaria, Ciudad N",
+        "tel_cliente": "567890125",
+        "email_cliente": "pablolopez@example.com"
     }
 ]

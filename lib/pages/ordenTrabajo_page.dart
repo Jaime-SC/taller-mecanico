@@ -15,7 +15,7 @@ class _OrdenTrabajoPageState extends State<OrdenTrabajoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Orden de Trabajo'), // Cambia el título según tu aplicación
+        title: Text('Orden de Trabajo', style: TextStyle(fontFamily: 'SpaceMonoNerdFont')), // Cambia el título según tu aplicación
       ),
       drawer: AppDrawer(), // Usa el widget del Drawer aquí
       body: Container(
