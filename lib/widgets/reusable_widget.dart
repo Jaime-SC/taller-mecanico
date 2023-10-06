@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../pages/clientes_page.dart';
+import '../pages/home_page.dart';
 import '../pages/login_page.dart';
 import '../pages/ordenTrabajo_page.dart';
 import '../pages/register_page.dart';
@@ -21,8 +22,6 @@ Image logoWidget(String imageName) {
 Image logoDrawer(String imageName) {
   return Image.asset(
     imageName,
-    
-  
     color: Colors.white,
   );
 }
@@ -37,10 +36,19 @@ class AppDrawer extends StatelessWidget {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Color(0xff004B85)
+              color: Color(0xff004B85),
             ),
-            child: logoDrawer("assets/images/logo1.png"),
+            child: InkWell(
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomePage()),
+                );
+              },
+              child: logoDrawer("assets/images/logo1.png"),
+            ),
           ),
+
           ListTile(
             title: Text('Clientes'),
             onTap: () {
@@ -83,10 +91,42 @@ class AppDrawer extends StatelessWidget {
               });
             },
           ),
+          // Agrega más elementos del menú según sea necesario
         ],
       ),
     );
   }
+}
+
+Container busquedaCliente(
+    TextEditingController searchController, Function(String) filterClientes) {
+  return Container(
+    width: 500, // Usar todo el ancho disponible
+    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    padding: EdgeInsets.symmetric(horizontal: 16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(30),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.5),
+          spreadRadius: 2,
+          blurRadius: 5,
+          offset: Offset(0, 3),
+        ),
+      ],
+    ),
+    child: TextField(
+      cursorColor: Color(0XFFD60019),
+      controller: searchController,
+      onChanged: filterClientes,
+      decoration: InputDecoration(
+        hintText: 'Buscar Clientes',
+        prefixIcon: Icon(Icons.search),
+        border: InputBorder.none,
+      ),
+    ),
+  );
 }
 
 // Widget reutilizable para campos de texto
@@ -194,30 +234,29 @@ Widget buildGradientContainer(Widget child, List<Color> colors) {
   );
 }
 
-
 Widget textFieldAgregarClientes(
-    String labelText,
-    IconData prefixIcon,
-    bool isPassword,
-    TextEditingController controller,
-  ) {
-    return Container(
-
-      margin: EdgeInsets.symmetric(vertical: 5),
-      child: TextField(
-        controller: controller,
-        obscureText: isPassword,
-        enableSuggestions: !isPassword,
-        autocorrect: !isPassword,
-        cursorColor: Color(0XFFD60019),
-        style: TextStyle(color: Colors.black),
-        decoration: InputDecoration(
-          labelText: labelText,
-          prefixIcon: Icon(prefixIcon, color: Color(0XFF004B85), size: TextSelectionToolbar.kHandleSize),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
+  String labelText,
+  IconData prefixIcon,
+  bool isPassword,
+  TextEditingController controller,
+) {
+  return Container(
+    margin: EdgeInsets.symmetric(vertical: 5),
+    child: TextField(
+      controller: controller,
+      obscureText: isPassword,
+      enableSuggestions: !isPassword,
+      autocorrect: !isPassword,
+      cursorColor: Color(0XFFD60019),
+      style: TextStyle(color: Colors.black),
+      decoration: InputDecoration(
+        labelText: labelText,
+        prefixIcon: Icon(prefixIcon,
+            color: Color(0XFF004B85), size: TextSelectionToolbar.kHandleSize),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
         ),
       ),
-    );
-  }
+    ),
+  );
+}

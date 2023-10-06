@@ -16,6 +16,8 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Mi Aplicación'), // Cambia el título según tu aplicación
+        backgroundColor: Color(0xff004B85),
+        foregroundColor: Colors.white,
       ),
       drawer: AppDrawer(), // Usa el widget del Drawer aquí
       body: Container(

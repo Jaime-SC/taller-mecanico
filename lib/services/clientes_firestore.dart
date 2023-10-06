@@ -258,7 +258,8 @@ void deleteCliente(String clienteId) {
       .delete()
       .then(
     (value) {
-      print("Deleted successfully");
+      print("Eliminado Correctamente");
     },
   );
 }
+
