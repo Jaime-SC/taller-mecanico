@@ -51,22 +51,22 @@ class _ClientesPageState extends State<ClientesPage> {
     setState(() {
       filteredDocumentSnapshots = documentSnapshots?.where((document) {
         final cliente = Cliente(
-          rut: document["rut_cliente"] ?? "",
-          nombre: document["nom_cliente"] ?? "",
-          apellido: document["ape_cliente"] ?? "",
-          direccion: document["dir_cliente"] ?? "",
-          telefono: document["tel_cliente"] ?? "",
-          email: document["email_cliente"] ?? "",
+          rut_cliente: document["rut_cliente"] ?? "",
+          nom_cliente: document["nom_cliente"] ?? "",
+          ape_cliente: document["ape_cliente"] ?? "",
+          dir_cliente: document["dir_cliente"] ?? "",
+          tel_cliente: document["tel_cliente"] ?? "",
+          email_cliente: document["email_cliente"] ?? "",
         );
 
         final searchTermLowerCase = searchTerm.toLowerCase();
 
-        return cliente.rut.toLowerCase().contains(searchTermLowerCase) ||
-            cliente.nombre.toLowerCase().contains(searchTermLowerCase) ||
-            cliente.apellido.toLowerCase().contains(searchTermLowerCase) ||
-            cliente.direccion.toLowerCase().contains(searchTermLowerCase) ||
-            cliente.telefono.toLowerCase().contains(searchTermLowerCase) ||
-            cliente.email.toLowerCase().contains(searchTermLowerCase);
+        return cliente.rut_cliente.toLowerCase().contains(searchTermLowerCase) ||
+            cliente.nom_cliente.toLowerCase().contains(searchTermLowerCase) ||
+            cliente.ape_cliente.toLowerCase().contains(searchTermLowerCase) ||
+            cliente.dir_cliente.toLowerCase().contains(searchTermLowerCase) ||
+            cliente.tel_cliente.toLowerCase().contains(searchTermLowerCase) ||
+            cliente.email_cliente.toLowerCase().contains(searchTermLowerCase);
       }).toList();
     });
   }
@@ -142,33 +142,33 @@ class _ClientesPageState extends State<ClientesPage> {
                       if (searchController.text.isNotEmpty) {
                         filteredData = documentSnapshots?.where((document) {
                           final cliente = Cliente(
-                            rut: document["rut_cliente"] ?? "",
-                            nombre: document["nom_cliente"] ?? "",
-                            apellido: document["ape_cliente"] ?? "",
-                            direccion: document["dir_cliente"] ?? "",
-                            telefono: document["tel_cliente"] ?? "",
-                            email: document["email_cliente"] ?? "",
+                            rut_cliente: document["rut_cliente"] ?? "",
+                            nom_cliente: document["nom_cliente"] ?? "",
+                            ape_cliente: document["ape_cliente"] ?? "",
+                            dir_cliente: document["dir_cliente"] ?? "",
+                            tel_cliente: document["tel_cliente"] ?? "",
+                            email_cliente: document["email_cliente"] ?? "",
                           );
 
                           final searchTermLowerCase =
                               searchController.text.toLowerCase();
 
-                          return cliente.rut
+                          return cliente.rut_cliente
                                   .toLowerCase()
                                   .contains(searchTermLowerCase) ||
-                              cliente.nombre
+                              cliente.nom_cliente
                                   .toLowerCase()
                                   .contains(searchTermLowerCase) ||
-                              cliente.apellido
+                              cliente.ape_cliente
                                   .toLowerCase()
                                   .contains(searchTermLowerCase) ||
-                              cliente.direccion
+                              cliente.dir_cliente
                                   .toLowerCase()
                                   .contains(searchTermLowerCase) ||
-                              cliente.telefono
+                              cliente.tel_cliente
                                   .toLowerCase()
                                   .contains(searchTermLowerCase) ||
-                              cliente.email
+                              cliente.email_cliente
                                   .toLowerCase()
                                   .contains(searchTermLowerCase);
                         }).toList();

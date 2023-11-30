@@ -51,34 +51,34 @@ class _ClientesDataTableState extends State<ClientesDataTable> {
       ),
       child: DataTable(
         columns: [
-          buildSortableHeader('RUT', (cliente) => cliente.rut),
-          buildSortableHeader('NOMBRE', (cliente) => cliente.nombre),
-          buildSortableHeader('APELLIDO', (cliente) => cliente.apellido),
-          buildSortableHeader('DIRECCION', (cliente) => cliente.direccion),
-          buildSortableHeader('TELEFONO', (cliente) => cliente.telefono),
-          buildSortableHeader('EMAIL', (cliente) => cliente.email),
+          buildSortableHeader('RUT', (cliente) => cliente.rut_cliente),
+          buildSortableHeader('NOMBRE', (cliente) => cliente.nom_cliente),
+          buildSortableHeader('APELLIDO', (cliente) => cliente.ape_cliente),
+          buildSortableHeader('DIRECCION', (cliente) => cliente.dir_cliente),
+          buildSortableHeader('TELEFONO', (cliente) => cliente.tel_cliente),
+          buildSortableHeader('EMAIL', (cliente) => cliente.email_cliente),
           DataColumn(
             label: Text('ACCIONES', style: TextStyle(fontSize: 17.5, fontFamily: 'SpaceMonoNerdFont', fontWeight: FontWeight.bold)),
           ),
         ],
         rows: widget.documentSnapshots?.map((documentSnapshot) {
           final cliente = Cliente(
-            rut: documentSnapshot["rut_cliente"] ?? "",
-            nombre: documentSnapshot["nom_cliente"] ?? "",
-            apellido: documentSnapshot["ape_cliente"] ?? "",
-            direccion: documentSnapshot["dir_cliente"] ?? "",
-            telefono: documentSnapshot["tel_cliente"] ?? "",
-            email: documentSnapshot["email_cliente"] ?? "",
+            rut_cliente: documentSnapshot["rut_cliente"] ?? "",
+            nom_cliente: documentSnapshot["nom_cliente"] ?? "",
+            ape_cliente: documentSnapshot["ape_cliente"] ?? "",
+            dir_cliente: documentSnapshot["dir_cliente"] ?? "",
+            tel_cliente: documentSnapshot["tel_cliente"] ?? "",
+            email_cliente: documentSnapshot["email_cliente"] ?? "",
           );
 
           return DataRow(
             cells: [
-              DataCell(Text(cliente.rut, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
-              DataCell(Text(cliente.nombre, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
-              DataCell(Text(cliente.apellido, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
-              DataCell(Text(cliente.direccion, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
-              DataCell(Text(cliente.telefono, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
-              DataCell(Text(cliente.email, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
+              DataCell(Text(cliente.rut_cliente, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
+              DataCell(Text(cliente.nom_cliente, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
+              DataCell(Text(cliente.ape_cliente, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
+              DataCell(Text(cliente.dir_cliente, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
+              DataCell(Text(cliente.tel_cliente, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
+              DataCell(Text(cliente.email_cliente, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
               DataCell(
                 Row(
                   children: [
@@ -154,20 +154,20 @@ class _ClientesDataTableState extends State<ClientesDataTable> {
 
     widget.documentSnapshots?.sort((a, b) {
       var aValue = getField(Cliente(
-        rut: a["rut_cliente"] ?? "",
-        nombre: a["nom_cliente"] ?? "",
-        apellido: a["ape_cliente"] ?? "",
-        direccion: a["dir_cliente"] ?? "",
-        telefono: a["tel_cliente"] ?? "",
-        email: a["email_cliente"] ?? "",
+        rut_cliente: a["rut_cliente"] ?? "",
+        nom_cliente: a["nom_cliente"] ?? "",
+        ape_cliente: a["ape_cliente"] ?? "",
+        dir_cliente: a["dir_cliente"] ?? "",
+        tel_cliente: a["tel_cliente"] ?? "",
+        email_cliente: a["email_cliente"] ?? "",
       ));
       var bValue = getField(Cliente(
-        rut: b["rut_cliente"] ?? "",
-        nombre: b["nom_cliente"] ?? "",
-        apellido: b["ape_cliente"] ?? "",
-        direccion: b["dir_cliente"] ?? "",
-        telefono: b["tel_cliente"] ?? "",
-        email: b["email_cliente"] ?? "",
+        rut_cliente: b["rut_cliente"] ?? "",
+        nom_cliente: b["nom_cliente"] ?? "",
+        ape_cliente: b["ape_cliente"] ?? "",
+        dir_cliente: b["dir_cliente"] ?? "",
+        tel_cliente: b["tel_cliente"] ?? "",
+        email_cliente: b["email_cliente"] ?? "",
       ));
 
       if (!ascending) {
@@ -196,7 +196,6 @@ class AgregarEditarClienteDialog extends StatefulWidget {
 
 class _AgregarEditarClienteDialogState
     extends State<AgregarEditarClienteDialog> {
-  final FirestoreService _firestoreService = FirestoreService();
   final TextEditingController rutController = TextEditingController();
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController apellidoController = TextEditingController();
@@ -205,111 +204,143 @@ class _AgregarEditarClienteDialogState
   final TextEditingController emailController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    if (widget.cliente != null) {
-      rutController.text = widget.cliente!.rut;
-      nombreController.text = widget.cliente!.nombre;
-      apellidoController.text = widget.cliente!.apellido;
-      direccionController.text = widget.cliente!.direccion;
-      telefonoController.text = widget.cliente!.telefono;
-      emailController.text = widget.cliente!.email;
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      child: Container(
-        width: 500,
-        padding: EdgeInsets.all(12.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 4.0,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              widget.clienteId != null ? 'Editar Cliente' : 'Agregar Cliente',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 12),
-            textFieldAgregarClientes('RUT', Icons.person, false, rutController),
-            textFieldAgregarClientes(
-                'Nombre', Icons.person, false, nombreController),
-            textFieldAgregarClientes(
-                'Apellido', Icons.person, false, apellidoController),
-            textFieldAgregarClientes(
-                'Dirección', Icons.location_on, false, direccionController),
-            textFieldAgregarClientes(
-                'Teléfono', Icons.phone, false, telefonoController),
-            textFieldAgregarClientes(
-                'Email', Icons.email, false, emailController),
-            SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: _guardarCliente,
-              style: ElevatedButton.styleFrom(
-                primary: Color(0XFF004B85),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-              child: Text(
-                widget.clienteId != null ? 'Actualizar' : 'Guardar',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _guardarCliente() {
-    final cliente = Cliente(
-      rut: rutController.text,
-      nombre: nombreController.text,
-      apellido: apellidoController.text,
-      direccion: direccionController.text,
-      telefono: telefonoController.text,
-      email: emailController.text,
-    );
-
-    if (widget.clienteId != null) {
-      _firestoreService.actualizarCliente(widget.clienteId!, cliente);
-    } else {
-      _firestoreService.agregarCliente(cliente);
+    // Inicializar controladores con la información del cliente si está disponible
+    if (widget.cliente != null) {
+      rutController.text = widget.cliente!.rut_cliente;
+      nombreController.text = widget.cliente!.nom_cliente;
+      apellidoController.text = widget.cliente!.ape_cliente;
+      direccionController.text = widget.cliente!.dir_cliente;
+      telefonoController.text = widget.cliente!.tel_cliente;
+      emailController.text = widget.cliente!.email_cliente;
     }
 
-    Navigator.of(context).pop();
-    setState(() {});
+    return AlertDialog(
+      title: Text('Agregar Nuevo Cliente'),
+      content: SingleChildScrollView(
+        child: Column(
+          children: [
+            textField("RUT", rutController),
+            textField("Nombre", nombreController),
+            textField("Apellido", apellidoController),
+            textField("Dirección", direccionController),
+            textField("Teléfono", telefonoController),
+            textField("Email", emailController),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context); // Cierra el cuadro de diálogo
+          },
+          child: Text('Cancelar'),
+        ),
+        TextButton(
+          onPressed: () {
+            if (camposValidos()) {
+              if (widget.cliente != null) {
+                // Lógica para editar el cliente existente en Firebase
+                editarClienteExistente();
+              } else {
+                // Lógica para agregar el nuevo cliente a Firebase
+                agregarNuevoCliente();
+              }
+              Navigator.pop(context); // Cierra el cuadro de diálogo
+            } else {
+              // Muestra un mensaje de error si hay campos vacíos
+              mostrarErrorCamposVacios();
+            }
+          },
+          child: Text(widget.cliente != null ? 'Editar' : 'Agregar'),
+        ),
+      ],
+    );
   }
-}
 
-void deleteCliente(String clienteId) {
-  FirebaseFirestore.instance
-      .collection("clientes")
-      .doc(clienteId)
-      .delete()
-      .then(
-    (value) {
-      print("Eliminado Correctamente");
-    },
-  );
+  Widget textField(String labelText, TextEditingController controller) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        decoration: InputDecoration(labelText: labelText),
+        controller: controller,
+      ),
+    );
+  }
+
+  bool camposValidos() {
+    // Verifica que todos los campos estén llenos
+    return rutController.text.isNotEmpty &&
+        nombreController.text.isNotEmpty &&
+        apellidoController.text.isNotEmpty &&
+        direccionController.text.isNotEmpty &&
+        telefonoController.text.isNotEmpty &&
+        emailController.text.isNotEmpty;
+  }
+
+  void mostrarErrorCamposVacios() {
+    // Muestra un mensaje de error si hay campos vacíos
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text(
+              'Todos los campos son obligatorios. Por favor, completa la información.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Aceptar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void agregarNuevoCliente() async {
+    try {
+      // Obtener una referencia a la colección "clientes" en Firebase
+      final clientesCollection =
+          FirebaseFirestore.instance.collection("clientes");
+
+      // Agregar el nuevo cliente a Firebase
+      await clientesCollection.add({
+        "rut_cliente": rutController.text,
+        "nom_cliente": nombreController.text,
+        "ape_cliente": apellidoController.text,
+        "dir_cliente": direccionController.text,
+        "tel_cliente": telefonoController.text,
+        "email_cliente": emailController.text,
+      });
+
+      print("Nuevo cliente agregado con éxito a Firebase.");
+    } catch (e) {
+      print("Error al agregar nuevo cliente a Firebase: $e");
+    }
+  }
+
+  void editarClienteExistente() async {
+    try {
+      // Obtener una referencia al documento del cliente en Firebase
+      final clienteRef =
+          FirebaseFirestore.instance.collection("clientes").doc(widget.clienteId);
+
+      // Actualizar la información del cliente en Firebase
+      await clienteRef.update({
+        "rut_cliente": rutController.text,
+        "nom_cliente": nombreController.text,
+        "ape_cliente": apellidoController.text,
+        "dir_cliente": direccionController.text,
+        "tel_cliente": telefonoController.text,
+        "email_cliente": emailController.text,
+      });
+
+      print("Cliente editado con éxito en Firebase.");
+    } catch (e) {
+      print("Error al editar cliente en Firebase: $e");
+    }
+  }
 }

@@ -1,8 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:taller_mecanico/pages/clientes_page.dart';
+// import 'package:taller_mecanico/pages/clientes_page.dart';
 import 'package:taller_mecanico/pages/home_page.dart';
-import 'package:taller_mecanico/pages/login_page.dart';
+// import 'package:taller_mecanico/pages/login_page.dart';
 import 'firebase_options.dart';
 
 void main() async {

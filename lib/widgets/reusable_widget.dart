@@ -4,7 +4,7 @@ import '../pages/clientes_page.dart';
 import '../pages/home_page.dart';
 import '../pages/login_page.dart';
 import '../pages/register_page.dart';
-
+import '../pages/vehiculos_page.dart';
 
 Image logoWidget(String imageName) => Image.asset(
       imageName,
@@ -45,8 +45,7 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
           drawerItem("Clientes", () => navigateTo(context, ClientesPage())),
-          drawerItem(
-              "Vehículos", () {} /*=> navigateTo(context, VehiculosPage())*/),
+          drawerItem("Vehículos", () => navigateTo(context, VehiculosPage())),
           drawerItem("Orden de Trabajo",
               () {} /*=> navigateTo(context, OrdenTrabajoPage())*/),
           drawerItem(
@@ -102,6 +101,36 @@ Container busquedaCliente(TextEditingController searchController,
         onChanged: filterClientes,
         decoration: InputDecoration(
           hintText: 'Buscar Clientes',
+          prefixIcon: Icon(Icons.search),
+          border: InputBorder.none,
+        ),
+      ),
+    );
+
+Container busquedaVehiculo(TextEditingController searchController,
+        Function(String) filterVehiculos) =>
+    Container(
+      width: 500,
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: TextField(
+        cursorColor: Color(0XFFD60019),
+        controller: searchController,
+        onChanged: filterVehiculos,
+        decoration: InputDecoration(
+          hintText: 'Buscar Vehiculos',
           prefixIcon: Icon(Icons.search),
           border: InputBorder.none,
         ),
