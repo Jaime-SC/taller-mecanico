@@ -12,8 +12,6 @@ import 'dart:convert';
 class ClientesPage extends StatefulWidget {
   const ClientesPage({Key? key});
 
-  
-
   @override
   State<ClientesPage> createState() => _ClientesPageState();
 }
@@ -39,18 +37,21 @@ class _ClientesPageState extends State<ClientesPage> {
   }
 
   void fetchData() async {
+    print("Fetching data...");
     final snapshot =
         await FirebaseFirestore.instance.collection("clientes").get();
     setState(() {
-      documentSnapshots = snapshot.docs;
-      filteredDocumentSnapshots = snapshot.docs;
+      documentSnapshots = snapshot.docs; // Usar directamente los documentos
+      filteredDocumentSnapshots = documentSnapshots;
     });
+    print("Data fetched: ${documentSnapshots?.length} documents");
   }
 
   void filterClientes(String searchTerm) {
     setState(() {
       filteredDocumentSnapshots = documentSnapshots?.where((document) {
         final cliente = Cliente(
+          id: document.id,
           rut_cliente: document["rut_cliente"] ?? "",
           nom_cliente: document["nom_cliente"] ?? "",
           ape_cliente: document["ape_cliente"] ?? "",
@@ -61,7 +62,9 @@ class _ClientesPageState extends State<ClientesPage> {
 
         final searchTermLowerCase = searchTerm.toLowerCase();
 
-        return cliente.rut_cliente.toLowerCase().contains(searchTermLowerCase) ||
+        return cliente.rut_cliente
+                .toLowerCase()
+                .contains(searchTermLowerCase) ||
             cliente.nom_cliente.toLowerCase().contains(searchTermLowerCase) ||
             cliente.ape_cliente.toLowerCase().contains(searchTermLowerCase) ||
             cliente.dir_cliente.toLowerCase().contains(searchTermLowerCase) ||
@@ -77,7 +80,8 @@ class _ClientesPageState extends State<ClientesPage> {
       appBar: AppBar(
         foregroundColor: Colors.white,
         backgroundColor: Color(0xff008452),
-        title: Text('Clientes', style: TextStyle(fontFamily: 'SpaceMonoNerdFont')),
+        title:
+            Text('Clientes', style: TextStyle(fontFamily: 'SpaceMonoNerdFont')),
       ),
       drawer: AppDrawer(
         onSignOut: () async {
@@ -141,36 +145,14 @@ class _ClientesPageState extends State<ClientesPage> {
                       // Aplicar filtro si hay un término de búsqueda
                       if (searchController.text.isNotEmpty) {
                         filteredData = documentSnapshots?.where((document) {
-                          final cliente = Cliente(
-                            rut_cliente: document["rut_cliente"] ?? "",
-                            nom_cliente: document["nom_cliente"] ?? "",
-                            ape_cliente: document["ape_cliente"] ?? "",
-                            dir_cliente: document["dir_cliente"] ?? "",
-                            tel_cliente: document["tel_cliente"] ?? "",
-                            email_cliente: document["email_cliente"] ?? "",
-                          );
-
-                          final searchTermLowerCase =
-                              searchController.text.toLowerCase();
-
-                          return cliente.rut_cliente
+                          return Cliente.fromFirestore(document)
+                              .toJson()
+                              .values
+                              .any((value) => value
+                                  .toString()
                                   .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              cliente.nom_cliente
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              cliente.ape_cliente
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              cliente.dir_cliente
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              cliente.tel_cliente
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              cliente.email_cliente
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase);
+                                  .contains(
+                                      searchController.text.toLowerCase()));
                         }).toList();
                       }
 
@@ -226,8 +208,7 @@ class _ClientesPageState extends State<ClientesPage> {
 
     try {
       // Lee el archivo JSON
-      final String jsonString =
-          await rootBundle.loadString('clientes.json');
+      final String jsonString = await rootBundle.loadString('clientes.json');
       final List<Map<String, dynamic>> listaClientes =
           List<Map<String, dynamic>>.from(json.decode(jsonString));
 

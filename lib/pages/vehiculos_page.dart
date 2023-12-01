@@ -12,8 +12,6 @@ import 'dart:convert';
 class VehiculosPage extends StatefulWidget {
   const VehiculosPage({Key? key});
 
-  
-
   @override
   State<VehiculosPage> createState() => _VehiculosPageState();
 }
@@ -39,8 +37,22 @@ class _VehiculosPageState extends State<VehiculosPage> {
   }
 
   void fetchData() async {
-    final snapshot =
-        await FirebaseFirestore.instance.collection("vehiculos").get();
+    // Define la cantidad de documentos a recuperar por página
+    final int pageSize = 10;
+
+    // Inicializa la consulta para obtener la primera página
+    Query query = FirebaseFirestore.instance
+        .collection("vehiculos")
+        .orderBy("matricula_vehiculo")
+        .limit(pageSize);
+
+    // Si ya hay documentos cargados, ajusta la consulta para comenzar después del último documento cargado
+    if (documentSnapshots != null && documentSnapshots!.isNotEmpty) {
+      query = query.startAfter([documentSnapshots!.last]);
+    }
+
+    final snapshot = await query.get();
+
     setState(() {
       documentSnapshots = snapshot.docs;
       filteredDocumentSnapshots = snapshot.docs;
@@ -52,21 +64,23 @@ class _VehiculosPageState extends State<VehiculosPage> {
       filteredDocumentSnapshots = documentSnapshots?.where((document) {
         final vehiculo = Vehiculo(
           matricula_vehiculo: document["matricula_vehiculo"] ?? "",
-          rut_cliente: document["rut_cliente"] ?? "",
+          clienteReference: document["clienteReference"] ?? "",
           marca: document["marca"] ?? "",
           modelo: document["modelo"] ?? "",
           anio: document["anio"] ?? "",
-          
         );
 
         final searchTermLowerCase = searchTerm.toLowerCase();
 
-        return vehiculo.matricula_vehiculo.toLowerCase().contains(searchTermLowerCase) ||
-            vehiculo.rut_cliente.toLowerCase().contains(searchTermLowerCase) ||
+        return vehiculo.matricula_vehiculo
+                .toLowerCase()
+                .contains(searchTermLowerCase) ||
+            vehiculo.clienteReference
+                .toString()
+                .contains(searchTermLowerCase) ||
             vehiculo.marca.toLowerCase().contains(searchTermLowerCase) ||
             vehiculo.modelo.toLowerCase().contains(searchTermLowerCase) ||
             vehiculo.anio.toLowerCase().contains(searchTermLowerCase);
-            
       }).toList();
     });
   }
@@ -77,7 +91,8 @@ class _VehiculosPageState extends State<VehiculosPage> {
       appBar: AppBar(
         foregroundColor: Colors.white,
         backgroundColor: Color(0xff008452),
-        title: Text('Vehiculos', style: TextStyle(fontFamily: 'SpaceMonoNerdFont')),
+        title: Text('Vehiculos',
+            style: TextStyle(fontFamily: 'SpaceMonoNerdFont')),
       ),
       drawer: AppDrawer(
         onSignOut: () async {
@@ -138,17 +153,11 @@ class _VehiculosPageState extends State<VehiculosPage> {
                       List<QueryDocumentSnapshot>? filteredData =
                           documentSnapshots;
 
-                      // Aplicar filtro si hay un término de búsqueda
+// Aplicar filtro si hay un término de búsqueda
                       if (searchController.text.isNotEmpty) {
                         filteredData = documentSnapshots?.where((document) {
-                          final vehiculo = Vehiculo(
-                            matricula_vehiculo: document["matricula_vehiculo"] ?? "",
-                            rut_cliente: document["rut_cliente"] ?? "",
-                            marca: document["marca"] ?? "",
-                            modelo: document["modelo"] ?? "",
-                            anio: document["anio"] ?? "",
-                            
-                          );
+                          final vehiculo = Vehiculo.fromFirestore(
+                              document); // Utiliza el constructor adecuado
 
                           final searchTermLowerCase =
                               searchController.text.toLowerCase();
@@ -156,8 +165,7 @@ class _VehiculosPageState extends State<VehiculosPage> {
                           return vehiculo.matricula_vehiculo
                                   .toLowerCase()
                                   .contains(searchTermLowerCase) ||
-                              vehiculo.rut_cliente
-                                  .toLowerCase()
+                              vehiculo.clienteReference.id
                                   .contains(searchTermLowerCase) ||
                               vehiculo.marca
                                   .toLowerCase()
@@ -223,8 +231,7 @@ class _VehiculosPageState extends State<VehiculosPage> {
 
     try {
       // Lee el archivo JSON
-      final String jsonString =
-          await rootBundle.loadString('vehiculos.json');
+      final String jsonString = await rootBundle.loadString('vehiculos.json');
       final List<Map<String, dynamic>> listaVehiculos =
           List<Map<String, dynamic>>.from(json.decode(jsonString));
 

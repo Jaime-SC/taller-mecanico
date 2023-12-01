@@ -1,29 +1,79 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../models/cliente.dart';
 import '../models/vehiculo.dart';
-import '../widgets/reusable_widget.dart';
 
 class FirestoreService {
   final CollectionReference vehiculosCollection =
       FirebaseFirestore.instance.collection("vehiculos");
+  final CollectionReference clientesCollection =
+      FirebaseFirestore.instance.collection("clientes");
 
   Future<void> agregarVehiculo(Vehiculo vehiculo) async {
-    await vehiculosCollection.add(vehiculo.toJson());
+    // Verificamos si el vehículo tiene una referencia de cliente
+    if (vehiculo.clienteReference == null) {
+      print("Error: El vehículo no tiene una referencia de cliente.");
+      return; // Puedes manejar esto de acuerdo a tu lógica
+    }
+
+    // Y finalmente, añadimos el vehículo a la colección de vehículos con la referencia del cliente
+    await vehiculosCollection.add({
+      "matricula_vehiculo": vehiculo.matricula_vehiculo,
+      "clienteReference": vehiculo.clienteReference,
+      "marca": vehiculo.marca,
+      "modelo": vehiculo.modelo,
+      "anio": vehiculo.anio,
+    });
+  }
+
+  Future<List<Vehiculo>> obtenerVehiculos() async {
+    try {
+      QuerySnapshot vehiculosSnapshot = await vehiculosCollection.get();
+
+      // Mapeamos los documentos a objetos Vehiculo
+      List<Vehiculo> vehiculos = vehiculosSnapshot.docs.map((doc) {
+        return Vehiculo(
+          matricula_vehiculo: doc["matricula_vehiculo"],
+          clienteReference:
+              FirebaseFirestore.instance.doc(doc["clienteReference"]),
+          marca: doc["marca"],
+          modelo: doc["modelo"],
+          anio: doc["anio"],
+          // Incluye otras propiedades del vehículo
+        );
+      }).toList();
+
+      return vehiculos;
+    } catch (e) {
+      print("Error al obtener vehículos: $e");
+      return []; // Puedes manejar el error según tus necesidades
+    }
   }
 
   Future<void> actualizarVehiculo(String vehiculoId, Vehiculo vehiculo) async {
-    await vehiculosCollection.doc(vehiculoId).update(vehiculo.toJson());
+    try {
+      await vehiculosCollection.doc(vehiculoId).update(vehiculo.toJson());
+      print("Vehículo actualizado con éxito.");
+    } catch (e) {
+      print("Error al actualizar vehículo: $e");
+    }
   }
 
   Future<void> eliminarVehiculo(String vehiculoId) async {
-    await vehiculosCollection.doc(vehiculoId).delete();
+    try {
+      await vehiculosCollection.doc(vehiculoId).delete();
+      print("Vehículo eliminado con éxito.");
+    } catch (e) {
+      print("Error al eliminar vehículo: $e");
+    }
   }
 }
 
 class VehiculosDataTable extends StatefulWidget {
   final List<QueryDocumentSnapshot>? documentSnapshots;
 
-  const VehiculosDataTable({Key? key, this.documentSnapshots}) : super(key: key);
+  const VehiculosDataTable({Key? key, this.documentSnapshots})
+      : super(key: key);
 
   @override
   _VehiculosDataTableState createState() => _VehiculosDataTableState();
@@ -51,66 +101,93 @@ class _VehiculosDataTableState extends State<VehiculosDataTable> {
       ),
       child: DataTable(
         columns: [
-          buildSortableHeader('MATRICULA VEHICULO', (vehiculo) => vehiculo.matricula_vehiculo),
-          buildSortableHeader('RUT CLIENTE', (vehiculo) => vehiculo.rut_cliente),
+          buildSortableHeader(
+              'MATRICULA VEHICULO', (vehiculo) => vehiculo.matricula_vehiculo),
+          buildSortableHeader(
+              'RUT CLIENTE',
+              (vehiculo) => vehiculo
+                  .clienteReference.id), // Accede al ID de la referencia
           buildSortableHeader('MARCA', (vehiculo) => vehiculo.marca),
           buildSortableHeader('MODELO', (vehiculo) => vehiculo.modelo),
           buildSortableHeader('AÑO', (vehiculo) => vehiculo.anio),
-          
+
           DataColumn(
-            label: Text('ACCIONES', style: TextStyle(fontSize: 17.5, fontFamily: 'SpaceMonoNerdFont', fontWeight: FontWeight.bold)),
+            label: Text('ACCIONES',
+                style: TextStyle(
+                    fontSize: 17.5,
+                    fontFamily: 'SpaceMonoNerdFont',
+                    fontWeight: FontWeight.bold)),
           ),
         ],
         rows: widget.documentSnapshots?.map((documentSnapshot) {
-          final vehiculo = Vehiculo(
-            matricula_vehiculo: documentSnapshot["matricula_vehiculo"] ?? "",
-            rut_cliente: documentSnapshot["rut_cliente"] ?? "",
-            marca: documentSnapshot["marca"] ?? "",
-            modelo: documentSnapshot["modelo"] ?? "",
-            anio: documentSnapshot["anio"] ?? "",
-            
-          );
+              final vehiculo = Vehiculo(
+                matricula_vehiculo:
+                    documentSnapshot["matricula_vehiculo"] ?? "",
+                clienteReference: documentSnapshot["clienteReference"],
+                marca: documentSnapshot["marca"] ?? "",
+                modelo: documentSnapshot["modelo"] ?? "",
+                anio: documentSnapshot["anio"] ?? "",
+              );
 
-          return DataRow(
-            cells: [
-              DataCell(Text(vehiculo.matricula_vehiculo, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
-              DataCell(Text(vehiculo.rut_cliente, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
-              DataCell(Text(vehiculo.marca, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
-              DataCell(Text(vehiculo.modelo, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
-              DataCell(Text(vehiculo.anio, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, fontFamily: 'GoMonoNerdFont'))),
-              
-              DataCell(
-                Row(
-                  children: [
-                    buildIconButton(
-                      Icons.delete,
-                      Color(0XFFD60019),
-                      () {
-                        FirestoreService()
-                            .eliminarVehiculo(documentSnapshot.id);
-                      },
-                    ),
-                    buildIconButton(
-                      Icons.edit,
-                      Color(0XFF004B85),
-                      () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AgregarEditarVehiculoDialog(
-                              vehiculo: vehiculo,
-                              vehiculoId: documentSnapshot.id,
+              return DataRow(
+                cells: [
+                  DataCell(Text(vehiculo.matricula_vehiculo,
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'GoMonoNerdFont'))),
+                  DataCell(Text(vehiculo.clienteReference.id,
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'GoMonoNerdFont'))),
+                  DataCell(Text(vehiculo.marca,
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'GoMonoNerdFont'))),
+                  DataCell(Text(vehiculo.modelo,
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'GoMonoNerdFont'))),
+                  DataCell(Text(vehiculo.anio,
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'GoMonoNerdFont'))),
+                  DataCell(
+                    Row(
+                      children: [
+                        buildIconButton(
+                          Icons.delete,
+                          Color(0XFFD60019),
+                          () {
+                            FirestoreService()
+                                .eliminarVehiculo(documentSnapshot.id);
+                          },
+                        ),
+                        buildIconButton(
+                          Icons.edit,
+                          Color(0XFF004B85),
+                          () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AgregarEditarVehiculoDialog(
+                                  vehiculo: vehiculo,
+                                  vehiculoId: documentSnapshot.id,
+                                );
+                              },
                             );
                           },
-                        );
-                      },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-            ],
-          );
-        }).toList() ??
+                  ),
+                ],
+              );
+            }).toList() ??
             [],
       ),
     );
@@ -118,9 +195,14 @@ class _VehiculosDataTableState extends State<VehiculosDataTable> {
 
   DataColumn buildSortableHeader(String label, Function(Vehiculo) getField) {
     return DataColumn(
-      label: Text(label, style: TextStyle(fontSize: 17.5, fontFamily: 'SpaceMonoNerdFont', fontWeight: FontWeight.bold)),
+      label: Text(label,
+          style: TextStyle(
+              fontSize: 17.5,
+              fontFamily: 'SpaceMonoNerdFont',
+              fontWeight: FontWeight.bold)),
       onSort: (columnIndex, ascending) {
-        _sort<Comparable>((vehiculo) => getField(vehiculo), columnIndex, ascending);
+        _sort<Comparable>(
+            (vehiculo) => getField(vehiculo), columnIndex, ascending);
       },
     );
   }
@@ -140,7 +222,8 @@ class _VehiculosDataTableState extends State<VehiculosDataTable> {
     });
   }
 
-  void _sort<T>(Comparable<T> Function(Vehiculo vehiculo) getField, int columnIndex, bool ascending) {
+  void _sort<T>(Comparable<T> Function(Vehiculo vehiculo) getField,
+      int columnIndex, bool ascending) {
     if (_currentSortColumnIndex == columnIndex) {
       setState(() {
         _currentSortAscending = !_currentSortAscending;
@@ -155,19 +238,17 @@ class _VehiculosDataTableState extends State<VehiculosDataTable> {
     widget.documentSnapshots?.sort((a, b) {
       var aValue = getField(Vehiculo(
         matricula_vehiculo: a["matricula_vehiculo"] ?? "",
-        rut_cliente: a["rut_cliente"] ?? "",
+        clienteReference: a["clienteReference"] ?? "",
         marca: a["marca"] ?? "",
         modelo: a["modelo"] ?? "",
         anio: a["anio"] ?? "",
-        
       ));
       var bValue = getField(Vehiculo(
         matricula_vehiculo: b["matricula_vehiculo"] ?? "",
-        rut_cliente: b["rut_cliente"] ?? "",
+        clienteReference: b["clienteReference"] ?? "",
         marca: b["marca"] ?? "",
         modelo: b["modelo"] ?? "",
         anio: b["anio"] ?? "",
-        
       ));
 
       if (!ascending) {
@@ -198,17 +279,33 @@ class _AgregarEditarVehiculoDialogState
     extends State<AgregarEditarVehiculoDialog> {
   final TextEditingController matriculaVehiculoController =
       TextEditingController();
-  final TextEditingController rutVehiculoController = TextEditingController();
+  final TextEditingController clienteReferenceController =
+      TextEditingController(); // No editable por el usuario
   final TextEditingController marcaController = TextEditingController();
   final TextEditingController modeloController = TextEditingController();
   final TextEditingController anioController = TextEditingController();
+
+  Future<void> _seleccionarCliente(BuildContext context) async {
+    final clienteSeleccionado = await showDialog<Cliente>(
+      context: context,
+      builder: (BuildContext context) {
+        return ClienteSeleccionDialog();
+      },
+    );
+
+    if (clienteSeleccionado != null) {
+      setState(() {
+        clienteReferenceController.text = clienteSeleccionado.rut_cliente;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     // Inicializar controladores con la información del vehículo si está disponible
     if (widget.vehiculo != null) {
       matriculaVehiculoController.text = widget.vehiculo!.matricula_vehiculo;
-      rutVehiculoController.text = widget.vehiculo!.rut_cliente;
+      clienteReferenceController.text = widget.vehiculo!.clienteReference.id;
       marcaController.text = widget.vehiculo!.marca;
       modeloController.text = widget.vehiculo!.modelo;
       anioController.text = widget.vehiculo!.anio;
@@ -220,7 +317,22 @@ class _AgregarEditarVehiculoDialogState
         child: Column(
           children: [
             textField("Matricula Vehiculo", matriculaVehiculoController),
-            textField("Rut Cliente", rutVehiculoController),
+            Row(
+              children: [
+                Expanded(
+                  child: textField(
+                      "Cliente Reference", clienteReferenceController,
+                      enabled: false),
+                ),
+                IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () {
+                    // Abre el diálogo de selección de clientes
+                    _seleccionarCliente(context);
+                  },
+                ),
+              ],
+            ),
             textField("Marca", marcaController),
             textField("Modelo", modeloController),
             textField("Año", anioController),
@@ -256,12 +368,14 @@ class _AgregarEditarVehiculoDialogState
     );
   }
 
-  Widget textField(String labelText, TextEditingController controller) {
+  Widget textField(String labelText, TextEditingController controller,
+      {bool enabled = true}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
         decoration: InputDecoration(labelText: labelText),
         controller: controller,
+        enabled: enabled,
       ),
     );
   }
@@ -269,7 +383,6 @@ class _AgregarEditarVehiculoDialogState
   bool camposValidos() {
     // Verifica que todos los campos estén llenos
     return matriculaVehiculoController.text.isNotEmpty &&
-        rutVehiculoController.text.isNotEmpty &&
         marcaController.text.isNotEmpty &&
         modeloController.text.isNotEmpty &&
         anioController.text.isNotEmpty;
@@ -297,16 +410,22 @@ class _AgregarEditarVehiculoDialogState
     );
   }
 
-  void agregarNuevoVehiculo() async {
+  Future<void> agregarNuevoVehiculo() async {
     try {
       // Obtener una referencia a la colección "vehiculos" en Firebase
       final vehiculosCollection =
           FirebaseFirestore.instance.collection("vehiculos");
 
+      // Obtén la referencia del cliente basada en el ID proporcionado
+      final clientReference = FirebaseFirestore.instance
+          .collection('clientes')
+          .doc(clienteReferenceController.text);
+
       // Agregar el nuevo vehículo a Firebase
       await vehiculosCollection.add({
         "matricula_vehiculo": matriculaVehiculoController.text,
-        "rut_cliente": rutVehiculoController.text,
+        "clienteReference":
+            clientReference, // Utiliza la referencia del cliente
         "marca": marcaController.text,
         "modelo": modeloController.text,
         "anio": anioController.text,
@@ -321,13 +440,16 @@ class _AgregarEditarVehiculoDialogState
   void editarVehiculoExistente() async {
     try {
       // Obtener una referencia al documento del vehículo en Firebase
-      final vehiculoRef =
-          FirebaseFirestore.instance.collection("vehiculos").doc(widget.vehiculoId);
+      final vehiculoRef = FirebaseFirestore.instance
+          .collection("vehiculos")
+          .doc(widget.vehiculoId);
 
       // Actualizar la información del vehículo en Firebase
       await vehiculoRef.update({
         "matricula_vehiculo": matriculaVehiculoController.text,
-        "rut_cliente": rutVehiculoController.text,
+        "clienteReference": FirebaseFirestore.instance
+            .collection('clientes')
+            .doc(clienteReferenceController.text),
         "marca": marcaController.text,
         "modelo": modeloController.text,
         "anio": anioController.text,
@@ -336,6 +458,73 @@ class _AgregarEditarVehiculoDialogState
       print("Vehículo editado con éxito en Firebase.");
     } catch (e) {
       print("Error al editar vehículo en Firebase: $e");
+    }
+  }
+}
+
+class ClienteSeleccionDialog extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Seleccionar Cliente'),
+      content: Container(
+        width: double.maxFinite, // Puedes ajustar esto según tus necesidades
+        height: double.maxFinite, // Puedes ajustar esto según tus necesidades
+        child: FutureBuilder<List<Cliente>>(
+          future: cargarClientes(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text('Error al cargar clientes: ${snapshot.error}'),
+              );
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(
+                child: Text('No hay clientes disponibles.'),
+              );
+            } else {
+              return ListView.builder(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  final cliente = snapshot.data![index];
+                  return ListTile(
+                    title: Row(children: [Text(cliente.nom_cliente), Text(" ${cliente.rut_cliente}")]),
+                    onTap: () {
+                      Navigator.pop(context, cliente);
+                    },
+                  );
+                },
+              );
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<List<Cliente>> cargarClientes() async {
+    try {
+      final QuerySnapshot snapshot =
+          await FirebaseFirestore.instance.collection("clientes").get();
+
+      return snapshot.docs.map((doc) {
+        return Cliente(
+          id: doc.id,
+          rut_cliente: doc["rut_cliente"] ?? '',
+          nom_cliente: doc["nom_cliente"] ?? '',
+          ape_cliente: doc["ape_cliente"] ?? '',
+          dir_cliente: doc["dir_cliente"] ?? '',
+          tel_cliente: doc["tel_cliente"] ?? '',
+          email_cliente: doc["email_cliente"] ?? '',
+          // Add other properties of the client according to your model
+        );
+      }).toList();
+    } catch (e) {
+      print("Error al cargar clientes: $e");
+      return [];
     }
   }
 }
