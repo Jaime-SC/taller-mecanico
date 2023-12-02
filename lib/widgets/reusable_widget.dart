@@ -1,8 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:taller_mecanico/pages/mecanicos_page.dart';
+import 'package:taller_mecanico/pages/servicio_page.dart';
 import '../pages/clientes_page.dart';
 import '../pages/home_page.dart';
 import '../pages/login_page.dart';
+import '../pages/ordenTrabajo_page.dart';
 import '../pages/register_page.dart';
 import '../pages/vehiculos_page.dart';
 
@@ -47,9 +50,11 @@ class AppDrawer extends StatelessWidget {
           drawerItem("Clientes", () => navigateTo(context, ClientesPage())),
           drawerItem("Vehículos", () => navigateTo(context, VehiculosPage())),
           drawerItem("Orden de Trabajo",
-              () {} /*=> navigateTo(context, OrdenTrabajoPage())*/),
+              () => navigateTo(context, OrdenesTrabajosPage())),
+          drawerItem("Mecanicos",
+              () => navigateTo(context, MecanicosPage())),
           drawerItem(
-              "Servicios", () {} /*=> navigateTo(context, VehiculosPage())*/),
+              "Servicios", () => navigateTo(context, ServiciosPage())),
           drawerItem(
               "Mecanicos", () {} /*=> navigateTo(context, VehiculosPage())*/),
           drawerItem("Cerrar Sesión", () async {
@@ -131,6 +136,97 @@ Container busquedaVehiculo(TextEditingController searchController,
         onChanged: filterVehiculos,
         decoration: InputDecoration(
           hintText: 'Buscar Vehiculos',
+          prefixIcon: Icon(Icons.search),
+          border: InputBorder.none,
+        ),
+      ),
+    );
+
+Container busquedaOrdenTrabajo(TextEditingController searchController,
+        Function(String) filterOrdenesTrabajos) =>
+    Container(
+      width: 500,
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: TextField(
+        cursorColor: Color(0XFFD60019),
+        controller: searchController,
+        onChanged: filterOrdenesTrabajos,
+        decoration: InputDecoration(
+          hintText: 'Buscar OrdenesTrabajos',
+          prefixIcon: Icon(Icons.search),
+          border: InputBorder.none,
+        ),
+      ),
+    );
+
+Container busquedaMecanico(TextEditingController searchController,
+        Function(String) filterMecanicos) =>
+    Container(
+      width: 500,
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: TextField(
+        cursorColor: Color(0XFFD60019),
+        controller: searchController,
+        onChanged: filterMecanicos,
+        decoration: InputDecoration(
+          hintText: 'Buscar Mecanicos',
+          prefixIcon: Icon(Icons.search),
+          border: InputBorder.none,
+        ),
+      ),
+    );
+
+
+Container busquedaServicio(TextEditingController searchController,
+        Function(String) filterServicios) =>
+    Container(
+      width: 500,
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: TextField(
+        cursorColor: Color(0XFFD60019),
+        controller: searchController,
+        onChanged: filterServicios,
+        decoration: InputDecoration(
+          hintText: 'Buscar Servicios',
           prefixIcon: Icon(Icons.search),
           border: InputBorder.none,
         ),

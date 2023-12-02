@@ -80,6 +80,7 @@ class VehiculosDataTable extends StatefulWidget {
 }
 
 class _VehiculosDataTableState extends State<VehiculosDataTable> {
+  
   int _currentSortColumnIndex = 0;
   bool _currentSortAscending = true;
 
@@ -321,7 +322,7 @@ class _AgregarEditarVehiculoDialogState
               children: [
                 Expanded(
                   child: textField(
-                      "Cliente Reference", clienteReferenceController,
+                      "Rut Cliente", clienteReferenceController,
                       enabled: false),
                 ),
                 IconButton(
@@ -462,44 +463,73 @@ class _AgregarEditarVehiculoDialogState
   }
 }
 
-class ClienteSeleccionDialog extends StatelessWidget {
+class ClienteSeleccionDialog extends StatefulWidget {
+  @override
+  _ClienteSeleccionDialogState createState() => _ClienteSeleccionDialogState();
+}
+
+class _ClienteSeleccionDialogState extends State<ClienteSeleccionDialog> {
+  TextEditingController searchController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Seleccionar Cliente'),
+      contentPadding: EdgeInsets.all(10.0), // Ajusta el padding según tus necesidades
       content: Container(
-        width: double.maxFinite, // Puedes ajustar esto según tus necesidades
-        height: double.maxFinite, // Puedes ajustar esto según tus necesidades
-        child: FutureBuilder<List<Cliente>>(
-          future: cargarClientes(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text('Error al cargar clientes: ${snapshot.error}'),
-              );
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(
-                child: Text('No hay clientes disponibles.'),
-              );
-            } else {
-              return ListView.builder(
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, index) {
-                  final cliente = snapshot.data![index];
-                  return ListTile(
-                    title: Row(children: [Text(cliente.nom_cliente), Text(" ${cliente.rut_cliente}")]),
-                    onTap: () {
-                      Navigator.pop(context, cliente);
-                    },
-                  );
+        width: 350.0,
+        height: 450.0, // Ajusta la altura según tus necesidades
+        child: Column(
+          children: [
+            TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                labelText: 'Buscar cliente',
+                prefixIcon: Icon(Icons.search),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  // Actualiza la lista de clientes basándose en el término de búsqueda
+                  // Puedes utilizar la función de búsqueda en tu lista original
+                });
+              },
+            ),
+            Expanded(
+              child: FutureBuilder<List<Cliente>>(
+                future: cargarClientes(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error al cargar clientes: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(child: Text('No hay clientes disponibles.'));
+                  } else {
+                    // Filtra la lista de clientes según el término de búsqueda
+                    final filteredClientes = snapshot.data!
+                        .where((cliente) =>
+                            cliente.nom_cliente.toLowerCase().contains(searchController.text.toLowerCase()) ||
+                            cliente.ape_cliente.toLowerCase().contains(searchController.text.toLowerCase()) ||
+                            cliente.rut_cliente.toLowerCase().contains(searchController.text.toLowerCase()))
+                        .toList();
+
+                    return ListView.builder(
+                      itemCount: filteredClientes.length,
+                      itemBuilder: (context, index) {
+                        final cliente = filteredClientes[index];
+                        return ListTile(
+                          title: Text(" ${cliente.nom_cliente} ${cliente.ape_cliente} ${cliente.rut_cliente}"),
+                          onTap: () {
+                            Navigator.pop(context, cliente);
+                          },
+                        );
+                      },
+                    );
+                  }
                 },
-              );
-            }
-          },
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -519,7 +549,6 @@ class ClienteSeleccionDialog extends StatelessWidget {
           dir_cliente: doc["dir_cliente"] ?? '',
           tel_cliente: doc["tel_cliente"] ?? '',
           email_cliente: doc["email_cliente"] ?? '',
-          // Add other properties of the client according to your model
         );
       }).toList();
     } catch (e) {

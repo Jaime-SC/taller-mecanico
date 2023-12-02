@@ -2,21 +2,23 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
-import '../models/vehiculo.dart';
+import '../models/cliente.dart';
+import '../models/mecanico.dart';
+import '../services/mecanicos_firestore.dart';
 import '../widgets/app_colors.dart';
 import '../widgets/reusable_widget.dart';
-import '../services/vehiculos_firestore.dart';
+import '../services/clientes_firestore.dart';
 import 'login_page.dart';
 import 'dart:convert';
 
-class VehiculosPage extends StatefulWidget {
-  const VehiculosPage({Key? key});
+class MecanicosPage extends StatefulWidget {
+  const MecanicosPage({Key? key});
 
   @override
-  State<VehiculosPage> createState() => _VehiculosPageState();
+  State<MecanicosPage> createState() => _MecanicosPageState();
 }
 
-class _VehiculosPageState extends State<VehiculosPage> {
+class _MecanicosPageState extends State<MecanicosPage> {
   late TextEditingController searchController;
   List<QueryDocumentSnapshot>? documentSnapshots;
   List<QueryDocumentSnapshot>? filteredDocumentSnapshots;
@@ -37,50 +39,35 @@ class _VehiculosPageState extends State<VehiculosPage> {
   }
 
   void fetchData() async {
-    // Define la cantidad de documentos a recuperar por página
-    final int pageSize = 10;
-
-    // Inicializa la consulta para obtener la primera página
-    Query query = FirebaseFirestore.instance
-        .collection("vehiculos")
-        .orderBy("matricula_vehiculo")
-        .limit(pageSize);
-
-    // Si ya hay documentos cargados, ajusta la consulta para comenzar después del último documento cargado
-    if (documentSnapshots != null && documentSnapshots!.isNotEmpty) {
-      query = query.startAfter([documentSnapshots!.last]);
-    }
-
-    final snapshot = await query.get();
-
+    print("Fetching data...");
+    final snapshot =
+        await FirebaseFirestore.instance.collection("mecanicos").get();
     setState(() {
-      documentSnapshots = snapshot.docs;
-      filteredDocumentSnapshots = snapshot.docs;
+      documentSnapshots = snapshot.docs; // Usar directamente los documentos
+      filteredDocumentSnapshots = documentSnapshots;
     });
+    print("Data fetched: ${documentSnapshots?.length} documents");
   }
 
-  void filterVehiculos(String searchTerm) {
+  void filterMecanicos(String searchTerm) {
     setState(() {
       filteredDocumentSnapshots = documentSnapshots?.where((document) {
-        final vehiculo = Vehiculo(
-          matricula_vehiculo: document["matricula_vehiculo"] ?? "",
-          clienteReference: document["clienteReference"] ?? "",
-          marca: document["marca"] ?? "",
-          modelo: document["modelo"] ?? "",
-          anio: document["anio"] ?? "",
+        final mecanico = Mecanico(
+          id: document.id,
+          rut_mecanico: document["rut_mecanico"] ?? "",
+          nom_mecanico: document["nom_mecanico"] ?? "",
+          ape_mecanico: document["ape_mecanico"] ?? "",
+          email_mecanico: document["email_mecanico"] ?? "",
         );
 
         final searchTermLowerCase = searchTerm.toLowerCase();
 
-        return vehiculo.matricula_vehiculo
+        return mecanico.rut_mecanico
                 .toLowerCase()
                 .contains(searchTermLowerCase) ||
-            vehiculo.clienteReference
-                .toString()
-                .contains(searchTermLowerCase) ||
-            vehiculo.marca.toLowerCase().contains(searchTermLowerCase) ||
-            vehiculo.modelo.toLowerCase().contains(searchTermLowerCase) ||
-            vehiculo.anio.toLowerCase().contains(searchTermLowerCase);
+            mecanico.ape_mecanico.toLowerCase().contains(searchTermLowerCase) ||
+            mecanico.ape_mecanico.toLowerCase().contains(searchTermLowerCase) ||
+            mecanico.email_mecanico.toLowerCase().contains(searchTermLowerCase);
       }).toList();
     });
   }
@@ -91,7 +78,7 @@ class _VehiculosPageState extends State<VehiculosPage> {
       appBar: AppBar(
         foregroundColor: Colors.white,
         backgroundColor: Color(0xff008452),
-        title: Text('Vehiculos',
+        title: Text('Mecanicos',
             style: TextStyle(fontFamily: 'SpaceMonoNerdFont')),
       ),
       drawer: AppDrawer(
@@ -128,16 +115,16 @@ class _VehiculosPageState extends State<VehiculosPage> {
               children: [
                 Container(
                   alignment: Alignment.topCenter,
-                  child: busquedaVehiculo(
+                  child: busquedaMecanico(
                     searchController,
-                    filterVehiculos,
+                    filterMecanicos,
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(25.0),
                   child: StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
-                        .collection("vehiculos")
+                        .collection("mecanicos")
                         .snapshots(),
                     builder: (BuildContext context,
                         AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -153,34 +140,22 @@ class _VehiculosPageState extends State<VehiculosPage> {
                       List<QueryDocumentSnapshot>? filteredData =
                           documentSnapshots;
 
-// Aplicar filtro si hay un término de búsqueda
+                      // Aplicar filtro si hay un término de búsqueda
                       if (searchController.text.isNotEmpty) {
                         filteredData = documentSnapshots?.where((document) {
-                          final vehiculo = Vehiculo.fromFirestore(
-                              document); // Utiliza el constructor adecuado
-
-                          final searchTermLowerCase =
-                              searchController.text.toLowerCase();
-
-                          return vehiculo.matricula_vehiculo
+                          return Mecanico.fromFirestore(document)
+                              .toJson()
+                              .values
+                              .any((value) => value
+                                  .toString()
                                   .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              vehiculo.clienteReference.id
-                                  .contains(searchTermLowerCase) ||
-                              vehiculo.marca
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              vehiculo.modelo
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              vehiculo.anio
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase);
+                                  .contains(
+                                      searchController.text.toLowerCase()));
                         }).toList();
                       }
 
                       return Center(
-                        child: VehiculosDataTable(
+                        child: MecanicosDataTable(
                           documentSnapshots: filteredData,
                         ),
                       );
@@ -192,7 +167,10 @@ class _VehiculosPageState extends State<VehiculosPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
             heroTag: 'unique_hero_tag_for_floating_button',
             backgroundColor: Color(0XFF004B85),
             foregroundColor: Colors.white,
@@ -200,14 +178,49 @@ class _VehiculosPageState extends State<VehiculosPage> {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return AgregarEditarVehiculoDialog();
+                  return AgregarEditarMecanicoDialog();
                 },
               );
             },
             child: Icon(Icons.add),
           ),
+          SizedBox(width: 16), // Espacio entre los botones
+          FloatingActionButton(
+            backgroundColor: Color(0XFF004B85),
+            foregroundColor: Colors.white,
+            onPressed: () {
+              // Llama a la función para agregar registros automáticamente
+              agregarRegistrosAutomaticos();
+            },
+            child: Icon(Icons.add_box),
+          ),
+        ],
+      ),
     );
   }
 
-  
+  void agregarRegistrosAutomaticos() async {
+    final batch = FirebaseFirestore.instance.batch();
+    final mecanicosCollection =
+        FirebaseFirestore.instance.collection("mecanicos");
+
+    try {
+      // Lee el archivo JSON
+      final String jsonString = await rootBundle.loadString('mecanicos.json');
+      final List<Map<String, dynamic>> listaMecanicos =
+          List<Map<String, dynamic>>.from(json.decode(jsonString));
+
+      // Itera a través de la lista de mecanicos y agrega cada uno al lote
+      for (final mecanicoData in listaMecanicos) {
+        final newMecanicoRef = mecanicosCollection.doc();
+        batch.set(newMecanicoRef, mecanicoData);
+      }
+
+      await batch
+          .commit(); // Ejecuta la operación de lote para agregar registros
+      print("Se agregaron ${listaMecanicos.length} registros automáticamente.");
+    } catch (e) {
+      print("Error al agregar registros automáticamente: $e");
+    }
+  }
 }

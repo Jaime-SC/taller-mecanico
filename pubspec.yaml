@@ -39,6 +39,8 @@ dependencies:
   firebase_auth: ^4.10.0
   cloud_firestore: ^4.9.3
   data_table_2: ^2.4.0
+  intl: ^0.18.1
+
 
 dev_dependencies:
   flutter_test:

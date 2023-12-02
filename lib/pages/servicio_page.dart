@@ -2,21 +2,22 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
-import '../models/vehiculo.dart';
+import '../models/servicio.dart';
+import '../services/servicio_firestore.dart';
 import '../widgets/app_colors.dart';
 import '../widgets/reusable_widget.dart';
-import '../services/vehiculos_firestore.dart';
+
 import 'login_page.dart';
 import 'dart:convert';
 
-class VehiculosPage extends StatefulWidget {
-  const VehiculosPage({Key? key});
+class ServiciosPage extends StatefulWidget {
+  const ServiciosPage({Key? key});
 
   @override
-  State<VehiculosPage> createState() => _VehiculosPageState();
+  State<ServiciosPage> createState() => _ServiciosPageState();
 }
 
-class _VehiculosPageState extends State<VehiculosPage> {
+class _ServiciosPageState extends State<ServiciosPage> {
   late TextEditingController searchController;
   List<QueryDocumentSnapshot>? documentSnapshots;
   List<QueryDocumentSnapshot>? filteredDocumentSnapshots;
@@ -37,50 +38,34 @@ class _VehiculosPageState extends State<VehiculosPage> {
   }
 
   void fetchData() async {
-    // Define la cantidad de documentos a recuperar por página
-    final int pageSize = 10;
-
-    // Inicializa la consulta para obtener la primera página
-    Query query = FirebaseFirestore.instance
-        .collection("vehiculos")
-        .orderBy("matricula_vehiculo")
-        .limit(pageSize);
-
-    // Si ya hay documentos cargados, ajusta la consulta para comenzar después del último documento cargado
-    if (documentSnapshots != null && documentSnapshots!.isNotEmpty) {
-      query = query.startAfter([documentSnapshots!.last]);
-    }
-
-    final snapshot = await query.get();
-
+    print("Fetching data...");
+    final snapshot =
+        await FirebaseFirestore.instance.collection("servicios").get();
     setState(() {
-      documentSnapshots = snapshot.docs;
-      filteredDocumentSnapshots = snapshot.docs;
+      documentSnapshots = snapshot.docs; // Usar directamente los documentos
+      filteredDocumentSnapshots = documentSnapshots;
     });
+    print("Data fetched: ${documentSnapshots?.length} documents");
   }
 
-  void filterVehiculos(String searchTerm) {
+  void filterServicios(String searchTerm) {
     setState(() {
       filteredDocumentSnapshots = documentSnapshots?.where((document) {
-        final vehiculo = Vehiculo(
-          matricula_vehiculo: document["matricula_vehiculo"] ?? "",
-          clienteReference: document["clienteReference"] ?? "",
-          marca: document["marca"] ?? "",
-          modelo: document["modelo"] ?? "",
-          anio: document["anio"] ?? "",
+        final servicio = Servicio(
+          id: document.id,
+          descripcion: document["descripcion"] ?? "",
+          costo: document["costo"] ?? "",
         );
 
         final searchTermLowerCase = searchTerm.toLowerCase();
 
-        return vehiculo.matricula_vehiculo
-                .toLowerCase()
-                .contains(searchTermLowerCase) ||
-            vehiculo.clienteReference
+        return servicio.id.toLowerCase().contains(searchTermLowerCase) ||
+            servicio.descripcion.toLowerCase().contains(searchTermLowerCase) ||
+            servicio.costo
                 .toString()
-                .contains(searchTermLowerCase) ||
-            vehiculo.marca.toLowerCase().contains(searchTermLowerCase) ||
-            vehiculo.modelo.toLowerCase().contains(searchTermLowerCase) ||
-            vehiculo.anio.toLowerCase().contains(searchTermLowerCase);
+                .toLowerCase()
+                .contains(searchTermLowerCase);
+        // Convert costo to String before calling toLowerCase
       }).toList();
     });
   }
@@ -91,7 +76,7 @@ class _VehiculosPageState extends State<VehiculosPage> {
       appBar: AppBar(
         foregroundColor: Colors.white,
         backgroundColor: Color(0xff008452),
-        title: Text('Vehiculos',
+        title: Text('Servicios',
             style: TextStyle(fontFamily: 'SpaceMonoNerdFont')),
       ),
       drawer: AppDrawer(
@@ -128,16 +113,16 @@ class _VehiculosPageState extends State<VehiculosPage> {
               children: [
                 Container(
                   alignment: Alignment.topCenter,
-                  child: busquedaVehiculo(
+                  child: busquedaServicio(
                     searchController,
-                    filterVehiculos,
+                    filterServicios,
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(25.0),
                   child: StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
-                        .collection("vehiculos")
+                        .collection("servicios")
                         .snapshots(),
                     builder: (BuildContext context,
                         AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -153,34 +138,22 @@ class _VehiculosPageState extends State<VehiculosPage> {
                       List<QueryDocumentSnapshot>? filteredData =
                           documentSnapshots;
 
-// Aplicar filtro si hay un término de búsqueda
+                      // Aplicar filtro si hay un término de búsqueda
                       if (searchController.text.isNotEmpty) {
                         filteredData = documentSnapshots?.where((document) {
-                          final vehiculo = Vehiculo.fromFirestore(
-                              document); // Utiliza el constructor adecuado
-
-                          final searchTermLowerCase =
-                              searchController.text.toLowerCase();
-
-                          return vehiculo.matricula_vehiculo
+                          return Servicio.fromFirestore(document)
+                              .toJson()
+                              .values
+                              .any((value) => value
+                                  .toString()
                                   .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              vehiculo.clienteReference.id
-                                  .contains(searchTermLowerCase) ||
-                              vehiculo.marca
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              vehiculo.modelo
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              vehiculo.anio
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase);
+                                  .contains(
+                                      searchController.text.toLowerCase()));
                         }).toList();
                       }
 
                       return Center(
-                        child: VehiculosDataTable(
+                        child: ServicioDataTable(
                           documentSnapshots: filteredData,
                         ),
                       );
@@ -192,7 +165,10 @@ class _VehiculosPageState extends State<VehiculosPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
             heroTag: 'unique_hero_tag_for_floating_button',
             backgroundColor: Color(0XFF004B85),
             foregroundColor: Colors.white,
@@ -200,14 +176,49 @@ class _VehiculosPageState extends State<VehiculosPage> {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return AgregarEditarVehiculoDialog();
+                  return AgregarEditarServicioDialog();
                 },
               );
             },
             child: Icon(Icons.add),
           ),
+          SizedBox(width: 16), // Espacio entre los botones
+          FloatingActionButton(
+            backgroundColor: Color(0XFF004B85),
+            foregroundColor: Colors.white,
+            onPressed: () {
+              // Llama a la función para agregar registros automáticamente
+              agregarRegistrosAutomaticos();
+            },
+            child: Icon(Icons.add_box),
+          ),
+        ],
+      ),
     );
   }
 
-  
+  void agregarRegistrosAutomaticos() async {
+    final batch = FirebaseFirestore.instance.batch();
+    final serviciosCollection =
+        FirebaseFirestore.instance.collection("servicios");
+
+    try {
+      // Lee el archivo JSON
+      final String jsonString = await rootBundle.loadString('servicios.json');
+      final List<Map<String, dynamic>> listaServicios =
+          List<Map<String, dynamic>>.from(json.decode(jsonString));
+
+      // Itera a través de la lista de servicios y agrega cada uno al lote
+      for (final servicioData in listaServicios) {
+        final newServicioRef = serviciosCollection.doc();
+        batch.set(newServicioRef, servicioData);
+      }
+
+      await batch
+          .commit(); // Ejecuta la operación de lote para agregar registros
+      print("Se agregaron ${listaServicios.length} registros automáticamente.");
+    } catch (e) {
+      print("Error al agregar registros automáticamente: $e");
+    }
+  }
 }
