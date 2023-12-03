@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Servicio {
-  final String id; // Agregado para representar el ID del Servicio
+  final String id_servicio; // Agregado para representar el ID del Servicio
   final String descripcion;
   final int costo;
   
 
   Servicio({
-    required this.id,
+    required this.id_servicio,
     required this.descripcion,
     required this.costo,
     
@@ -21,7 +21,7 @@ class Servicio {
     }
 
     return Servicio(
-      id: doc.id,
+      id_servicio: data['id_servicio'] ?? '',
       descripcion: data['descripcion'] ?? '',
       costo: data['costo'] ?? '',
      
@@ -30,12 +30,13 @@ class Servicio {
 
   Map<String, dynamic> toJson({bool includeId = false}) {
     final Map<String, dynamic> jsonData = {
+      "id_servicio": id_servicio,
       "descripcion": descripcion,
       "costo": costo,  
     };
 
     if (includeId) {
-      jsonData['id'] = id;
+      jsonData['id'] = id_servicio;
     }
 
     return jsonData;

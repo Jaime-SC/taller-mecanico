@@ -51,6 +51,10 @@ class _ServicioDataTableState extends State<ServicioDataTable> {
       child: DataTable(
         columns: [
           buildSortableHeader(
+            'ID SERVICIO',
+            (servicio) => servicio.id_servicio,
+          ),
+          buildSortableHeader(
             'DESCRIPCIÓN',
             (servicio) => servicio.descripcion,
           ),
@@ -72,7 +76,7 @@ class _ServicioDataTableState extends State<ServicioDataTable> {
         ],
         rows: widget.documentSnapshots?.map((documentSnapshot) {
               final servicio = Servicio(
-                id: documentSnapshot.id,
+                id_servicio: documentSnapshot["id_servicio"] ?? "",
                 descripcion: documentSnapshot["descripcion"] ?? "",
                 costo: documentSnapshot["costo"] ??
                     0, // Asegurarse de manejar un valor predeterminado
@@ -80,6 +84,16 @@ class _ServicioDataTableState extends State<ServicioDataTable> {
 
               return DataRow(
                 cells: [
+                  DataCell(
+                    Text(
+                      servicio.id_servicio,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'GoMonoNerdFont',
+                      ),
+                    ),
+                  ),
                   DataCell(
                     Text(
                       servicio.descripcion,
@@ -181,12 +195,12 @@ class _ServicioDataTableState extends State<ServicioDataTable> {
 
     widget.documentSnapshots?.sort((a, b) {
       var aValue = getField(Servicio(
-        id: a.id,
+        id_servicio: a["id_servicio"] ?? "",
         descripcion: a["descripcion"] ?? "",
         costo: a["costo"] ?? "",
       ));
       var bValue = getField(Servicio(
-        id: b.id,
+        id_servicio: b["id_servicio"] ?? "",
         descripcion: b["descripcion"] ?? "",
         costo: b["costo"] ?? "",
       ));
@@ -217,6 +231,7 @@ class AgregarEditarServicioDialog extends StatefulWidget {
 
 class _AgregarEditarServicioDialogState
     extends State<AgregarEditarServicioDialog> {
+  final TextEditingController id_servicioController = TextEditingController();
   final TextEditingController descripcionController = TextEditingController();
   final TextEditingController costoController = TextEditingController();
 
@@ -235,6 +250,7 @@ class _AgregarEditarServicioDialogState
       content: SingleChildScrollView(
         child: Column(
           children: [
+            textField("Servicio", id_servicioController),
             textField("Descripcion", descripcionController),
             textField("Costo", costoController),
           ],
@@ -313,16 +329,38 @@ class _AgregarEditarServicioDialogState
       final serviciosCollection =
           FirebaseFirestore.instance.collection("servicios");
 
+      // Obtener el último documento ordenado por id_servicio de forma descendente
+      QuerySnapshot ultimoServicio = await serviciosCollection
+          .orderBy('id_servicio', descending: true)
+          .limit(1)
+          .get();
+
+      int ultimoValor = 0;
+
+      // Verificar si hay algún documento en la colección
+      if (ultimoServicio.docs.isNotEmpty) {
+        // Obtener el último valor de id_servicio y aumentarlo en 1
+        ultimoValor = int.parse(ultimoServicio.docs.first['id_servicio']
+            .toString()
+            .replaceAll('SERV-', ''));
+      }
+
+      // Generar el próximo código
+      String nuevoCodigo =
+          'SERV-${(ultimoValor + 1).toString().padLeft(2, '0')}';
+
       // Convertir el valor del controlador de texto a un entero
       int costo = int.parse(costoController.text);
 
       // Agregar el nuevo servicio a Firebase
       await serviciosCollection.add({
+        "id_servicio": nuevoCodigo,
         "descripcion": descripcionController.text,
         "costo": costo, // Almacena el costo como un entero
       });
 
-      print("Nuevo servicio agregado con éxito a Firebase.");
+      print(
+          "Nuevo servicio agregado con éxito a Firebase. Código: $nuevoCodigo");
     } catch (e) {
       print("Error al agregar nuevo servicio a Firebase: $e");
     }
@@ -340,6 +378,7 @@ class _AgregarEditarServicioDialogState
 
       // Actualizar la información del servicio en Firebase
       await servicioRef.update({
+        "id_servicio": id_servicioController.text,
         "descripcion": descripcionController.text,
         "costo": costo, // Almacena el costo como un entero
       });

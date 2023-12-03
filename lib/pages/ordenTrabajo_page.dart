@@ -65,7 +65,7 @@ class _OrdenesTrabajosPageState extends State<OrdenesTrabajosPage> {
     setState(() {
       filteredDocumentSnapshots = documentSnapshots?.where((document) {
         final ordenTrabajo = OrdenTrabajo(
-          //id_ord_trabajo: document["id_ord_trabajo"] ?? "",
+          id_ord_trabajo: document["id_ord_trabajo"] ?? "",
           rutReference: document["rutReference"],
           matriculaVehiculoReference: document["matriculaVehiculoReference"],
           fecha_inicio: document["fecha_inicio"] ?? "",
@@ -160,7 +160,7 @@ class _OrdenesTrabajosPageState extends State<OrdenesTrabajosPage> {
                       List<QueryDocumentSnapshot>? filteredData =
                           documentSnapshots;
 
-// Aplicar filtro si hay un término de búsqueda
+                      // Aplicar filtro si hay un término de búsqueda
                       if (searchController.text.isNotEmpty) {
                         filteredData = documentSnapshots?.where((document) {
                           final ordenTrabajo = OrdenTrabajo.fromFirestore(

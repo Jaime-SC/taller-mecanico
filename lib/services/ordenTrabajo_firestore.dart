@@ -7,7 +7,6 @@ import '../models/cliente.dart';
 import '../models/ordenTrabajo.dart';
 import '../models/vehiculo.dart';
 
-
 class FirestoreService {
   final CollectionReference vehiculosCollection =
       FirebaseFirestore.instance.collection("vehiculos");
@@ -50,7 +49,7 @@ class FirestoreService {
       List<OrdenTrabajo> ordenesTrabajos =
           ordenesTrabajosSnapshot.docs.map((doc) {
         return OrdenTrabajo(
-          
+          id_ord_trabajo: doc["ud_ord_trabajo"],
           rutReference: doc["rutReference"],
           matriculaVehiculoReference: doc["matriculaVehiculoReference"],
           fecha_inicio: doc["fecha_inicio"] as Timestamp,
@@ -123,8 +122,14 @@ class _OrdenesTrabajosDataTableState extends State<OrdenesTrabajosDataTable> {
       ),
       child: DataTable(
         columns: [
-          buildSortableHeader('RUT CLIENTE',(ordenTrabajo) => ordenTrabajo.rutReference.id),
-          buildSortableHeader('MATRICULA VEHICULO',(ordenTrabajo) => ordenTrabajo.matriculaVehiculoReference.id), // Accede al ID de la referencia`
+          buildSortableHeader('ID ORDEN TRABAJO',
+              (ordenTrabajo) => ordenTrabajo.id_ord_trabajo),
+          buildSortableHeader(
+              'RUT CLIENTE', (ordenTrabajo) => ordenTrabajo.rutReference.id),
+          buildSortableHeader(
+              'MATRICULA VEHICULO',
+              (ordenTrabajo) => ordenTrabajo.matriculaVehiculoReference
+                  .id), // Accede al ID de la referencia`
 
           buildSortableHeader(
               'FECHA INICIO', (ordenTrabajo) => ordenTrabajo.fecha_inicio),
@@ -142,7 +147,7 @@ class _OrdenesTrabajosDataTableState extends State<OrdenesTrabajosDataTable> {
         ],
         rows: widget.documentSnapshots?.map((documentSnapshot) {
               final ordenTrabajo = OrdenTrabajo(
-                //id_ord_trabajo: documentSnapshot["id_ord_trabajo"] ?? "",
+                id_ord_trabajo: documentSnapshot["id_ord_trabajo"] ?? "",
                 rutReference: documentSnapshot["rutReference"],
                 matriculaVehiculoReference:
                     documentSnapshot["matriculaVehiculoReference"],
@@ -153,11 +158,11 @@ class _OrdenesTrabajosDataTableState extends State<OrdenesTrabajosDataTable> {
 
               return DataRow(
                 cells: [
-                  // DataCell(Text(ordenTrabajo.id_ord_trabajo,
-                  //     style: TextStyle(
-                  //         fontSize: 15,
-                  //         fontWeight: FontWeight.w500,
-                  //         fontFamily: 'GoMonoNerdFont'))),
+                  DataCell(Text(ordenTrabajo.id_ord_trabajo,
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'GoMonoNerdFont'))),
                   DataCell(Text(ordenTrabajo.rutReference.id,
                       style: TextStyle(
                           fontSize: 15,
@@ -168,7 +173,6 @@ class _OrdenesTrabajosDataTableState extends State<OrdenesTrabajosDataTable> {
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'GoMonoNerdFont'))),
-
                   DataCell(Text(
                       DateFormat('dd-MM-yyyy')
                           .format(ordenTrabajo.fecha_inicio.toDate()),
@@ -285,6 +289,7 @@ class _OrdenesTrabajosDataTableState extends State<OrdenesTrabajosDataTable> {
 
     widget.documentSnapshots?.sort((a, b) {
       var aValue = getField(OrdenTrabajo(
+        id_ord_trabajo: a["id_ord_trabajo"] ?? "",
         rutReference: a["rutReference"],
         matriculaVehiculoReference: a["matriculaVehiculoReference"],
         fecha_inicio: a["fecha_inicio"] ?? "",
@@ -292,6 +297,7 @@ class _OrdenesTrabajosDataTableState extends State<OrdenesTrabajosDataTable> {
         estado: a["estado"] ?? "",
       ));
       var bValue = getField(OrdenTrabajo(
+        id_ord_trabajo: b["id_ord_trabajo"] ?? "",
         rutReference: b["rutReference"],
         matriculaVehiculoReference: b["matriculaVehiculoReference"],
         fecha_inicio: b["fecha_inicio"] ?? "",
@@ -387,7 +393,7 @@ class _AgregarEditarOrdenTrabajoDialogState
   Widget build(BuildContext context) {
     // Inicializar controladores con la información del vehículo si está disponible
     if (widget.ordenTrabajo != null) {
-      //idOrdenTrabajoController.text = widget.ordenTrabajo!.id_ord_trabajo;
+      idOrdenTrabajoController.text = widget.ordenTrabajo!.id_ord_trabajo;
       rutReferenceController.text = widget.ordenTrabajo!.rutReference.id;
       matriculaVehiculoReferenceController.text =
           widget.ordenTrabajo!.matriculaVehiculoReference.id;
@@ -404,6 +410,7 @@ class _AgregarEditarOrdenTrabajoDialogState
       content: SingleChildScrollView(
         child: Column(
           children: [
+            //textField("Id Orden Trabajo", idOrdenTrabajoController),
             Row(
               children: [
                 Expanded(
@@ -538,7 +545,9 @@ class _AgregarEditarOrdenTrabajoDialogState
 
   bool camposValidos() {
     // Verifica que todos los campos estén llenos
-    return rutReferenceController.text.isNotEmpty &&
+    return 
+    //idOrdenTrabajoController.text.isNotEmpty &&
+        rutReferenceController.text.isNotEmpty &&
         matriculaVehiculoReferenceController.text.isNotEmpty &&
         fechaInicioController.text.isNotEmpty &&
         fechaTerminoController.text.isNotEmpty &&
@@ -573,6 +582,26 @@ class _AgregarEditarOrdenTrabajoDialogState
       final ordenesTrabajosCollection =
           FirebaseFirestore.instance.collection("ordenesTrabajos");
 
+      // Obtener el último documento ordenado por id_ord_trabajo de forma descendente
+      QuerySnapshot ultimaOrden = await ordenesTrabajosCollection
+          .orderBy('id_ord_trabajo', descending: true)
+          .limit(1)
+          .get();
+
+      int ultimoValor = 0;
+
+      // Verificar si hay algún documento en la colección
+      if (ultimaOrden.docs.isNotEmpty) {
+        // Obtener el último valor de id_ord_trabajo y aumentarlo en 1
+        ultimoValor = int.parse(ultimaOrden.docs.first['id_ord_trabajo']
+            .toString()
+            .replaceAll('ORD-', ''));
+      }
+
+      // Generar el próximo código
+      String nuevoCodigo =
+          'ORD-${(ultimoValor + 1).toString().padLeft(2, '0')}';
+
       // Obtén la referencia del cliente basada en el ID proporcionado
       final rutReference = FirebaseFirestore.instance
           .collection('clientes')
@@ -594,6 +623,7 @@ class _AgregarEditarOrdenTrabajoDialogState
 
       // Agregar el nuevo vehículo a Firebase
       await ordenesTrabajosCollection.add({
+        "id_ord_trabajo": nuevoCodigo,
         "matriculaVehiculoReference": matriculaVehiculoReference,
         "rutReference": rutReference,
         "fecha_inicio": fechaInicioTimestamp,
@@ -601,7 +631,8 @@ class _AgregarEditarOrdenTrabajoDialogState
         "estado": estadoController.text,
       });
 
-      print("Nuevo orden de trabajo agregado con éxito a Firebase.");
+      print(
+          "Nuevo orden de trabajo agregado con éxito a Firebase. Código: $nuevoCodigo");
     } catch (e) {
       print("Error al agregar orden de trabajo a Firebase: $e");
     }
@@ -834,6 +865,7 @@ class _VehiculosSeleccionDialogState extends State<VehiculosSeleccionDialog> {
                                 searchController.text.toLowerCase()) ||
                             vehiculo.clienteReference
                                 .toString()
+                                .toLowerCase()
                                 .contains(searchController.text.toLowerCase()))
                         .toList();
 
@@ -843,7 +875,7 @@ class _VehiculosSeleccionDialogState extends State<VehiculosSeleccionDialog> {
                         final vehiculo = filteredVehiculos[index];
                         return ListTile(
                           title: Text(
-                              " ${vehiculo.matricula_vehiculo} ${vehiculo.clienteReference}"),
+                              "${vehiculo.matricula_vehiculo} ${vehiculo.clienteReference}"),
                           onTap: () {
                             Navigator.pop(context, vehiculo);
                           },

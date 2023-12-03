@@ -18,7 +18,7 @@ class FirestoreService {
 
     // Y finalmente, añadimos el vehículo a la colección de vehículos con la referencia del cliente
     await vehiculosCollection.add({
-      "matricula_vehiculo": vehiculo.matricula_vehiculo,
+      "rut_clienteReference": vehiculo.matricula_vehiculo,
       "clienteReference": vehiculo.clienteReference,
       "marca": vehiculo.marca,
       "modelo": vehiculo.modelo,

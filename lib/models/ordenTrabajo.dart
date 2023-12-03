@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class OrdenTrabajo {
-  //final String id_ord_trabajo;
+  final String id_ord_trabajo;
   final DocumentReference<Object?> rutReference;
   final DocumentReference<Object?> matriculaVehiculoReference;
   final Timestamp fecha_inicio;
@@ -9,7 +9,7 @@ class OrdenTrabajo {
   final String estado;
 
   OrdenTrabajo({
-    //required this.id_ord_trabajo,
+    required this.id_ord_trabajo,
     required this.rutReference,
     required this.matriculaVehiculoReference,
     required this.fecha_inicio,
@@ -36,7 +36,7 @@ class OrdenTrabajo {
     }
 
     return OrdenTrabajo(
-      //id_ord_trabajo: doc.id,
+      id_ord_trabajo: data['estado'] ?? '',
       rutReference: clienteRef,
       matriculaVehiculoReference: matriculaVehiculoRef,
       fecha_inicio: data['fecha_inicio'] as Timestamp,
