@@ -9,6 +9,8 @@ import '../pages/ordenTrabajo_page.dart';
 import '../pages/register_page.dart';
 import '../pages/vehiculos_page.dart';
 
+
+
 Image logoWidget(String imageName) => Image.asset(
       imageName,
       fit: BoxFit.fitWidth,
@@ -21,6 +23,38 @@ Image logoDrawer(String imageName) => Image.asset(
       imageName,
       color: Colors.white,
     );
+
+class BackgroundImage extends StatelessWidget {
+  final String imagePath;
+  final Widget child;
+
+  const BackgroundImage({
+    Key? key,
+    required this.imagePath,
+    required this.child,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+          padding: EdgeInsets.only(top: 60),
+          alignment: Alignment.topCenter,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(imagePath),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        SingleChildScrollView(
+          child: child,
+        ),
+      ],
+    );
+  }
+}
 
 class AppDrawer extends StatelessWidget {
   final VoidCallback? onSignOut;
@@ -47,20 +81,15 @@ class AppDrawer extends StatelessWidget {
               child: logoDrawer("assets/images/logo1.png"),
             ),
           ),
-          drawerItem("Clientes", () => navigateTo(context, ClientesPage())),
-          drawerItem("Vehículos", () => navigateTo(context, VehiculosPage())),
-          drawerItem("Orden de Trabajo",
-              () => navigateTo(context, OrdenesTrabajosPage())),
-          drawerItem("Mecanicos",
-              () => navigateTo(context, MecanicosPage())),
-          drawerItem(
-              "Servicios", () => navigateTo(context, ServiciosPage())),
-          drawerItem(
-              "Mecanicos", () {} /*=> navigateTo(context, VehiculosPage())*/),
-          drawerItem("Cerrar Sesión", () async {
+          drawerItem("Clientes", Icons.people, Colors.blue ,() => navigateTo(context, ClientesPage())),
+          drawerItem("Vehículos", Icons.directions_car, Colors.green, () => navigateTo(context, VehiculosPage())),
+          drawerItem("Orden de Trabajo", Icons.work, Colors.orange, () => navigateTo(context, OrdenesTrabajosPage())),
+          drawerItem("Mecánicos", Icons.person, Colors.grey, () => navigateTo(context, MecanicosPage())),
+          drawerItem("Servicios", Icons.assignment, Colors.purple, () => navigateTo(context, ServiciosPage())),
+          drawerItem("Cerrar Sesión", Icons.logout,  Colors.red, () async {
             try {
               await FirebaseAuth.instance.signOut();
-              // Navega a la pantalla de inicio de sesión u otra pantalla apropiada
+
               navigateTo(context, LoginPage());
             } catch (e) {
               print("Error al cerrar sesión: $e");
@@ -72,9 +101,20 @@ class AppDrawer extends StatelessWidget {
   }
 }
 
-Widget drawerItem(String title, Function onTap) => ListTile(
-      title: Text(title,
-          style: TextStyle(fontFamily: 'SpaceMonoNerdFont', fontSize: 17.5)),
+Widget drawerItem(String title, IconData icon, Color iconColor ,Function onTap) => ListTile(
+      title: Row(
+        children: [
+          Icon(
+            icon,
+            color: iconColor,
+          ),
+          SizedBox(width: 10), // Adjust the spacing as needed
+          Text(
+            title,
+            style: TextStyle(fontFamily: 'SpaceMonoNerdFont', fontSize: 17.5),
+          ),
+        ],
+      ),
       onTap: onTap as void Function()?,
     );
 

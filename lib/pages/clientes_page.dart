@@ -77,9 +77,10 @@ class _ClientesPageState extends State<ClientesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         foregroundColor: Colors.white,
-        backgroundColor: Color(0xff008452),
+        backgroundColor: Colors.transparent,
         title:
             Text('Clientes', style: TextStyle(fontFamily: 'SpaceMonoNerdFont')),
       ),
@@ -100,29 +101,20 @@ class _ClientesPageState extends State<ClientesPage> {
           }
         },
       ),
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: AppColors.colorClientePage,
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
-          SingleChildScrollView(
-            // Envuelve la columna con SingleChildScrollView
-            child: Column(
-              children: [
-                Container(
-                  alignment: Alignment.topCenter,
-                  child: busquedaCliente(
-                    searchController,
-                    filterClientes,
-                  ),
+      body: BackgroundImage(
+        imagePath: 'assets/images/fondo.jpg',
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.only(top: 60),
+                alignment: Alignment.topCenter,
+                child: busquedaCliente(
+                  searchController,
+                  filterClientes,
                 ),
-                Padding(
+              ),
+              Padding(
                   padding: const EdgeInsets.all(25.0),
                   child: StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
@@ -164,11 +156,11 @@ class _ClientesPageState extends State<ClientesPage> {
                     },
                   ),
                 ),
-              ],
-            ),
+            ],
           ),
-        ],
+        ),
       ),
+
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [

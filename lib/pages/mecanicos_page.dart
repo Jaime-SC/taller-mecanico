@@ -75,9 +75,10 @@ class _MecanicosPageState extends State<MecanicosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         foregroundColor: Colors.white,
-        backgroundColor: Color(0xff008452),
+        backgroundColor: Colors.transparent,
         title: Text('Mecanicos',
             style: TextStyle(fontFamily: 'SpaceMonoNerdFont')),
       ),
@@ -98,74 +99,59 @@ class _MecanicosPageState extends State<MecanicosPage> {
           }
         },
       ),
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: AppColors.colorClientePage,
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
-          SingleChildScrollView(
-            // Envuelve la columna con SingleChildScrollView
-            child: Column(
-              children: [
-                Container(
-                  alignment: Alignment.topCenter,
-                  child: busquedaMecanico(
+      body: BackgroundImage(
+        imagePath: 'assets/images/fondo1.jpg',
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.only(top: 60),
+                child: busquedaMecanico(
                     searchController,
                     filterMecanicos,
-                  ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(25.0),
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection("mecanicos")
-                        .snapshots(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<QuerySnapshot> snapshot) {
-                      if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      }
-
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      }
-
-                      final documentSnapshots = snapshot.data?.docs;
-                      List<QueryDocumentSnapshot>? filteredData =
-                          documentSnapshots;
-
-                      // Aplicar filtro si hay un término de búsqueda
-                      if (searchController.text.isNotEmpty) {
-                        filteredData = documentSnapshots?.where((document) {
-                          return Mecanico.fromFirestore(document)
-                              .toJson()
-                              .values
-                              .any((value) => value
-                                  .toString()
-                                  .toLowerCase()
-                                  .contains(
-                                      searchController.text.toLowerCase()));
-                        }).toList();
-                      }
-
-                      return Center(
-                        child: MecanicosDataTable(
-                          documentSnapshots: filteredData,
-                        ),
-                      );
-                    },
-                  ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(25.0),
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection("mecanicos")
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    }
+                    final documentSnapshots = snapshot.data?.docs;
+                    List<QueryDocumentSnapshot>? filteredData =
+                        documentSnapshots;
+                    // Aplicar filtro si hay un término de búsqueda
+                    if (searchController.text.isNotEmpty) {
+                      filteredData = documentSnapshots?.where((document) {
+                        return Mecanico.fromFirestore(document)
+                            .toJson()
+                            .values
+                            .any((value) => value
+                                .toString()
+                                .toLowerCase()
+                                .contains(
+                                    searchController.text.toLowerCase()));
+                      }).toList();
+                    }
+                    return Center(
+                      child: MecanicosDataTable(
+                        documentSnapshots: filteredData,
+                      ),
+                    );
+                  },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
