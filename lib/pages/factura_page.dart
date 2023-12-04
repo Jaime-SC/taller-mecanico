@@ -88,9 +88,10 @@ class _FacturasPageState extends State<FacturasPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         foregroundColor: Colors.white,
-        backgroundColor: Color(0xff008452),
+        backgroundColor: Colors.transparent,
         title:
             Text('Facturas', style: TextStyle(fontFamily: 'SpaceMonoNerdFont')),
       ),
@@ -111,86 +112,69 @@ class _FacturasPageState extends State<FacturasPage> {
           }
         },
       ),
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: AppColors.colorClientePage,
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+      body: BackgroundImage(
+        imagePath: 'assets/images/fondo.jpg',
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.only(top: 60),
+                child: busquedaFactura(
+                  searchController,
+                  filterFacturas,
+                ),
               ),
-            ),
-          ),
-          SingleChildScrollView(
-            // Envuelve la columna con SingleChildScrollView
-            child: Column(
-              children: [
-                Container(
-                  alignment: Alignment.topCenter,
-                  child: busquedaFactura(
-                    searchController,
-                    filterFacturas,
-                  ),
+              Padding(
+                padding: const EdgeInsets.all(25.0),
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection("facturas")
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    }
+                    final documentSnapshots = snapshot.data?.docs;
+                    List<QueryDocumentSnapshot>? filteredData =
+                        documentSnapshots;
+                    // Aplicar filtro si hay un término de búsqueda
+                    if (searchController.text.isNotEmpty) {
+                      filteredData = documentSnapshots?.where((document) {
+                        final factura = Factura.fromFirestore(document);
+                        final searchTermLowerCase =
+                            searchController.text.toLowerCase();
+                        return factura.id_factura
+                                .toLowerCase()
+                                .contains(searchTermLowerCase) ||
+                            factura.idOrdTrabajoReference.id
+                                .contains(searchTermLowerCase) ||
+                            factura.fecha_factura
+                                .toDate()
+                                .toString()
+                                .contains(searchTermLowerCase) ||
+                            factura.total
+                                .toString()
+                                .contains(searchTermLowerCase) ||
+                            factura.estado
+                                .toLowerCase()
+                                .contains(searchTermLowerCase);
+                      }).toList();
+                    }
+                    return Center(
+                      child: FacturasDataTable(
+                        documentSnapshots: filteredData,
+                      ),
+                    );
+                  },
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(25.0),
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection("facturas")
-                        .snapshots(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<QuerySnapshot> snapshot) {
-                      if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      }
-
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      }
-
-                      final documentSnapshots = snapshot.data?.docs;
-                      List<QueryDocumentSnapshot>? filteredData =
-                          documentSnapshots;
-
-                      // Aplicar filtro si hay un término de búsqueda
-                      if (searchController.text.isNotEmpty) {
-                        filteredData = documentSnapshots?.where((document) {
-                          final factura = Factura.fromFirestore(document);
-
-                          final searchTermLowerCase =
-                              searchController.text.toLowerCase();
-
-                          return factura.id_factura
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              factura.idOrdTrabajoReference.id
-                                  .contains(searchTermLowerCase) ||
-                              factura.fecha_factura
-                                  .toDate()
-                                  .toString()
-                                  .contains(searchTermLowerCase) ||
-                              factura.total
-                                  .toString()
-                                  .contains(searchTermLowerCase) ||
-                              factura.estado
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase);
-                        }).toList();
-                      }
-
-                      return Center(
-                        child: FacturasDataTable(
-                          documentSnapshots: filteredData,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'unique_hero_tag_for_floating_button',

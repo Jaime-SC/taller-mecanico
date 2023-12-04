@@ -92,10 +92,11 @@ class _DetallesOrdenesTrabajosPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         foregroundColor: Colors.white,
-        backgroundColor: Color(0xff008452),
-        title: Text('Detalles OrdenesTrabajos',
+        backgroundColor: Colors.transparent,
+        title: Text('Detalles Ordenes Trabajos',
             style: TextStyle(fontFamily: 'SpaceMonoNerdFont')),
       ),
       drawer: AppDrawer(
@@ -115,90 +116,73 @@ class _DetallesOrdenesTrabajosPageState
           }
         },
       ),
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: AppColors.colorClientePage,
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+      body: BackgroundImage(
+        imagePath: 'assets/images/fondo.jpg',
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.only(top: 60),
+                child: busquedaOrdenTrabajo(
+                  searchController,
+                  filterDetallesOrdenesTrabajos,
+                ),
               ),
-            ),
-          ),
-          SingleChildScrollView(
-            // Envuelve la columna con SingleChildScrollView
-            child: Column(
-              children: [
-                Container(
-                  alignment: Alignment.topCenter,
-                  child: busquedaOrdenTrabajo(
-                    searchController,
-                    filterDetallesOrdenesTrabajos,
-                  ),
+              Padding(
+                padding: const EdgeInsets.all(25.0),
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection("detallesOrdenesTrabajos")
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    }
+                    final documentSnapshots = snapshot.data?.docs;
+                    List<QueryDocumentSnapshot>? filteredData =
+                        documentSnapshots;
+                    // Aplicar filtro si hay un término de búsqueda
+                    if (searchController.text.isNotEmpty) {
+                      filteredData = documentSnapshots?.where((document) {
+                        final detalleOrdenTrabajo =
+                            DetalleOrdenTrabajo.fromFirestore(document);
+                        final searchTermLowerCase =
+                            searchController.text.toLowerCase();
+                        return detalleOrdenTrabajo.idOrdTrabajoReference.id
+                                .toLowerCase()
+                                .contains(searchTermLowerCase) ||
+                            detalleOrdenTrabajo.idServicioReference.id
+                                .toLowerCase()
+                                .contains(searchTermLowerCase) ||
+                            detalleOrdenTrabajo.rutMecanicoReference.id
+                                .toLowerCase()
+                                .contains(searchTermLowerCase) ||
+                            detalleOrdenTrabajo.fecha_inicio
+                                .toString()
+                                .contains(searchTermLowerCase) ||
+                            detalleOrdenTrabajo.fecha_termino
+                                .toString()
+                                .contains(searchTermLowerCase) ||
+                            detalleOrdenTrabajo.estado
+                                .toLowerCase()
+                                .contains(searchTermLowerCase);
+                      }).toList();
+                    }
+                    return Center(
+                      child: DetallesOrdenesTrabajosDataTable(
+                        documentSnapshots: filteredData,
+                      ),
+                    );
+                  },
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(25.0),
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection("detallesOrdenesTrabajos")
-                        .snapshots(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<QuerySnapshot> snapshot) {
-                      if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      }
-
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      }
-
-                      final documentSnapshots = snapshot.data?.docs;
-                      List<QueryDocumentSnapshot>? filteredData =
-                          documentSnapshots;
-
-                      // Aplicar filtro si hay un término de búsqueda
-                      if (searchController.text.isNotEmpty) {
-                        filteredData = documentSnapshots?.where((document) {
-                          final detalleOrdenTrabajo =
-                              DetalleOrdenTrabajo.fromFirestore(document);
-
-                          final searchTermLowerCase =
-                              searchController.text.toLowerCase();
-
-                          return detalleOrdenTrabajo.idOrdTrabajoReference.id
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              detalleOrdenTrabajo.idServicioReference.id
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              detalleOrdenTrabajo.rutMecanicoReference.id
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              detalleOrdenTrabajo.fecha_inicio
-                                  .toString()
-                                  .contains(searchTermLowerCase) ||
-                              detalleOrdenTrabajo.fecha_termino
-                                  .toString()
-                                  .contains(searchTermLowerCase) ||
-                              detalleOrdenTrabajo.estado
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase);
-                        }).toList();
-                      }
-
-                      return Center(
-                        child: DetallesOrdenesTrabajosDataTable(
-                          documentSnapshots: filteredData,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'unique_hero_tag_for_floating_button',

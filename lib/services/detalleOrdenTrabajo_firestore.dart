@@ -589,7 +589,7 @@ class _AgregarEditarDetalleOrdenTrabajoDialogState
               Navigator.pop(context); // Cierra el cuadro de diálogo
             } else {
               // Muestra un mensaje de error si hay campos vacíos
-              mostrarErrorCamposVacios();
+              //mostrarErrorCamposVacios();
             }
           },
           child:
@@ -638,23 +638,74 @@ class _AgregarEditarDetalleOrdenTrabajoDialogState
     }
   }
 
-  bool camposValidos() {
+ /* bool camposValidos() {
     // Verifica que todos los campos estén llenos
     return fechaInicioController.text.isNotEmpty &&
         fechaTerminoController.text.isNotEmpty &&
         estadoController.text.isNotEmpty &&
         costoController.text.isNotEmpty;
+  }*/
+
+bool camposValidos() {
+  // Verifica que todos los campos estén llenos
+  Map<String, TextEditingController> controllers = {
+    "Id Orden Trabajo":idOrdTrabajoReferenceController,
+    "Id Servicio":idServicioReferenceController,
+    "Rut Mecanico":rutMecanicoReferenceController,
+    "Fecha Inicio": fechaInicioController,
+    "Fecha Termino": fechaTerminoController,
+    "Estado": estadoController,
+    "Costo": costoController,
+  };
+  List<String> camposFaltantes = [];
+
+  controllers.forEach((key, value) {
+    if (value.text.isEmpty) {
+      camposFaltantes.add(key);
+    }
+  });
+
+  if (camposFaltantes.isNotEmpty) {
+    mostrarErrorCamposVacios(camposFaltantes);
+    return false;
   }
 
-  void mostrarErrorCamposVacios() {
+  return true;
+}
+
+  void mostrarErrorCamposVacios(List<String> camposFaltantes) {
     // Muestra un mensaje de error si hay campos vacíos
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Error'),
-          content: Text(
-              'Todos los campos son obligatorios. Por favor, completa la información.'),
+          title: Text('Campos Vacíos'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Todos los campos son obligatorios. Por favor, completa la información.',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8,),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildCampoCompleto("Id Orden Trabajo", !camposFaltantes.contains("Id Orden Trabajo")),
+                  buildCampoCompleto("Id Servicio", !camposFaltantes.contains("Id Servicio")),
+                  buildCampoCompleto("Rut Mecanico", !camposFaltantes.contains("Rut Mecanico")),
+                  buildCampoCompleto("Fecha Inicio", !camposFaltantes.contains("Fecha Inicio")),
+                  buildCampoCompleto(
+                      "Fecha Termino", !camposFaltantes.contains("Fecha Termino")),
+                  buildCampoCompleto(
+                      "Estado", !camposFaltantes.contains("Estado")),
+                  buildCampoCompleto(
+                      "Costo", !camposFaltantes.contains("Costo")),
+                ],
+              ),
+            ],
+          ),  
           actions: [
             TextButton(
               onPressed: () {
@@ -667,6 +718,25 @@ class _AgregarEditarDetalleOrdenTrabajoDialogState
       },
     );
   }
+
+  Widget buildCampoCompleto(String campo, bool completo) {
+  return Row(
+    children: [
+      Icon(
+        completo ? Icons.check_circle : Icons.cancel,
+        color: completo ? Colors.green : Colors.red,
+      ),
+      SizedBox(width: 8),
+      Text(
+        campo,
+        style: TextStyle(
+          fontSize: 16,
+          color: completo ? Colors.green : Colors.red,
+        ),
+      ),
+    ],
+  );
+}
 
   Future<void> agregarNuevoDetalleOrdenTrabajo() async {
     try {

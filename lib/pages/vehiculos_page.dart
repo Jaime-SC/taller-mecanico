@@ -87,9 +87,10 @@ class _VehiculosPageState extends State<VehiculosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         foregroundColor: Colors.white,
-        backgroundColor: Color(0xff008452),
+        backgroundColor: Colors.transparent,
         title: Text('Vehiculos',
             style: TextStyle(fontFamily: 'SpaceMonoNerdFont')),
       ),
@@ -110,86 +111,68 @@ class _VehiculosPageState extends State<VehiculosPage> {
           }
         },
       ),
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: AppColors.colorClientePage,
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+      body: BackgroundImage(
+        imagePath: 'assets/images/fondo4.jpg',
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.only(top: 60),
+                child: busquedaCliente(
+                  searchController,
+                  filterVehiculos,
+                ),
               ),
-            ),
-          ),
-          SingleChildScrollView(
-            // Envuelve la columna con SingleChildScrollView
-            child: Column(
-              children: [
-                Container(
-                  alignment: Alignment.topCenter,
-                  child: busquedaVehiculo(
-                    searchController,
-                    filterVehiculos,
-                  ),
+              Padding(
+                padding: const EdgeInsets.all(25.0),
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection("vehiculos")
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    }
+                    final documentSnapshots = snapshot.data?.docs;
+                    List<QueryDocumentSnapshot>? filteredData =
+                        documentSnapshots;// Aplicar filtro si hay un término de búsqueda
+                    if (searchController.text.isNotEmpty) {
+                      filteredData = documentSnapshots?.where((document) {
+                        final vehiculo = Vehiculo.fromFirestore(
+                            document); // Utiliza el constructor adecuado
+                        final searchTermLowerCase =
+                            searchController.text.toLowerCase();
+                        return vehiculo.matricula_vehiculo
+                                .toLowerCase()
+                                .contains(searchTermLowerCase) ||
+                            vehiculo.clienteReference.id
+                                .contains(searchTermLowerCase) ||
+                            vehiculo.marca
+                                .toLowerCase()
+                                .contains(searchTermLowerCase) ||
+                            vehiculo.modelo
+                                .toLowerCase()
+                                .contains(searchTermLowerCase) ||
+                            vehiculo.anio
+                                .toLowerCase()
+                                .contains(searchTermLowerCase);
+                      }).toList();
+                    }
+                    return Center(
+                      child: VehiculosDataTable(
+                        documentSnapshots: filteredData,
+                      ),
+                    );
+                  },
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(25.0),
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection("vehiculos")
-                        .snapshots(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<QuerySnapshot> snapshot) {
-                      if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      }
-
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      }
-
-                      final documentSnapshots = snapshot.data?.docs;
-                      List<QueryDocumentSnapshot>? filteredData =
-                          documentSnapshots;
-
-// Aplicar filtro si hay un término de búsqueda
-                      if (searchController.text.isNotEmpty) {
-                        filteredData = documentSnapshots?.where((document) {
-                          final vehiculo = Vehiculo.fromFirestore(
-                              document); // Utiliza el constructor adecuado
-
-                          final searchTermLowerCase =
-                              searchController.text.toLowerCase();
-
-                          return vehiculo.matricula_vehiculo
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              vehiculo.clienteReference.id
-                                  .contains(searchTermLowerCase) ||
-                              vehiculo.marca
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              vehiculo.modelo
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase) ||
-                              vehiculo.anio
-                                  .toLowerCase()
-                                  .contains(searchTermLowerCase);
-                        }).toList();
-                      }
-
-                      return Center(
-                        child: VehiculosDataTable(
-                          documentSnapshots: filteredData,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
             heroTag: 'unique_hero_tag_for_floating_button',
@@ -207,6 +190,4 @@ class _VehiculosPageState extends State<VehiculosPage> {
           ),
     );
   }
-
-  
 }

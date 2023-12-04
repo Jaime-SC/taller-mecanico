@@ -73,9 +73,10 @@ class _ServiciosPageState extends State<ServiciosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        foregroundColor: Colors.white,
-        backgroundColor: Color(0xff008452),
+        foregroundColor: Colors.black,
+        backgroundColor: Colors.transparent,
         title: Text('Servicios',
             style: TextStyle(fontFamily: 'SpaceMonoNerdFont')),
       ),
@@ -96,74 +97,59 @@ class _ServiciosPageState extends State<ServiciosPage> {
           }
         },
       ),
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: AppColors.colorClientePage,
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+      body: BackgroundImage(
+        imagePath: 'assets/images/fondo5.png',
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.only(top: 60),
+                child: busquedaServicio(
+                  searchController,
+                  filterServicios,
+                ),
               ),
-            ),
-          ),
-          SingleChildScrollView(
-            // Envuelve la columna con SingleChildScrollView
-            child: Column(
-              children: [
-                Container(
-                  alignment: Alignment.topCenter,
-                  child: busquedaServicio(
-                    searchController,
-                    filterServicios,
-                  ),
+              Padding(
+                padding: const EdgeInsets.all(25.0),
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection("servicios")
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    }
+                    final documentSnapshots = snapshot.data?.docs;
+                    List<QueryDocumentSnapshot>? filteredData =
+                        documentSnapshots;
+                    // Aplicar filtro si hay un término de búsqueda
+                    if (searchController.text.isNotEmpty) {
+                      filteredData = documentSnapshots?.where((document) {
+                        return Servicio.fromFirestore(document)
+                            .toJson()
+                            .values
+                            .any((value) => value
+                                .toString()
+                                .toLowerCase()
+                                .contains(
+                                    searchController.text.toLowerCase()));
+                      }).toList();
+                    }
+                    return Center(
+                      child: ServicioDataTable(
+                        documentSnapshots: filteredData,
+                      ),
+                    );
+                  },
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(25.0),
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection("servicios")
-                        .snapshots(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<QuerySnapshot> snapshot) {
-                      if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      }
-
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      }
-
-                      final documentSnapshots = snapshot.data?.docs;
-                      List<QueryDocumentSnapshot>? filteredData =
-                          documentSnapshots;
-
-                      // Aplicar filtro si hay un término de búsqueda
-                      if (searchController.text.isNotEmpty) {
-                        filteredData = documentSnapshots?.where((document) {
-                          return Servicio.fromFirestore(document)
-                              .toJson()
-                              .values
-                              .any((value) => value
-                                  .toString()
-                                  .toLowerCase()
-                                  .contains(
-                                      searchController.text.toLowerCase()));
-                        }).toList();
-                      }
-
-                      return Center(
-                        child: ServicioDataTable(
-                          documentSnapshots: filteredData,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+              ),            
+            ],
           ),
-        ],
+        ),
       ),
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
