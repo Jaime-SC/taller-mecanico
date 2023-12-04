@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:taller_mecanico/pages/detalleOrdenTrabajo_page.dart';
 import 'package:taller_mecanico/pages/factura_page.dart';
 import 'package:taller_mecanico/pages/mecanicos_page.dart';
 import 'package:taller_mecanico/pages/servicio_page.dart';
@@ -55,6 +56,7 @@ class AppDrawer extends StatelessWidget {
           drawerItem("Mecanicos", () => navigateTo(context, MecanicosPage())),
           drawerItem("Servicios", () => navigateTo(context, ServiciosPage())),
           drawerItem("Facturas", () => navigateTo(context, FacturasPage())),          
+          drawerItem("Detalle Ordenes Servicios", () => navigateTo(context, DetallesOrdenesTrabajosPage())),          
           drawerItem("Cerrar Sesión", () async {
             try {
               await FirebaseAuth.instance.signOut();
@@ -224,6 +226,36 @@ Container busquedaServicio(TextEditingController searchController,
         onChanged: filterServicios,
         decoration: InputDecoration(
           hintText: 'Buscar Servicios',
+          prefixIcon: Icon(Icons.search),
+          border: InputBorder.none,
+        ),
+      ),
+    );
+
+Container busquedaDetalleOrdenTrabajo(TextEditingController searchController,
+        Function(String) filterDetallesOrdenesTrabajos) =>
+    Container(
+      width: 500,
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: TextField(
+        cursorColor: Color(0XFFD60019),
+        controller: searchController,
+        onChanged: filterDetallesOrdenesTrabajos,
+        decoration: InputDecoration(
+          hintText: 'Buscar Detalles Ordenes Trabajo',
           prefixIcon: Icon(Icons.search),
           border: InputBorder.none,
         ),

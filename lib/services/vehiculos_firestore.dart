@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../models/cliente.dart';
@@ -80,7 +82,6 @@ class VehiculosDataTable extends StatefulWidget {
 }
 
 class _VehiculosDataTableState extends State<VehiculosDataTable> {
-  
   int _currentSortColumnIndex = 0;
   bool _currentSortAscending = true;
 
@@ -285,6 +286,8 @@ class _AgregarEditarVehiculoDialogState
   final TextEditingController marcaController = TextEditingController();
   final TextEditingController modeloController = TextEditingController();
   final TextEditingController anioController = TextEditingController();
+  final TextEditingController clienteSeleccionadoController =
+      TextEditingController();
 
   Future<void> _seleccionarCliente(BuildContext context) async {
     final clienteSeleccionado = await showDialog<Cliente>(
@@ -296,7 +299,7 @@ class _AgregarEditarVehiculoDialogState
 
     if (clienteSeleccionado != null) {
       setState(() {
-        clienteReferenceController.text = clienteSeleccionado.rut_cliente;
+        clienteSeleccionadoController.text = clienteSeleccionado.rut_cliente;
       });
     }
   }
@@ -321,8 +324,7 @@ class _AgregarEditarVehiculoDialogState
             Row(
               children: [
                 Expanded(
-                  child: textField(
-                      "Rut Cliente", clienteReferenceController,
+                  child: textField("Rut Cliente", clienteSeleccionadoController,
                       enabled: false),
                 ),
                 IconButton(
@@ -383,7 +385,8 @@ class _AgregarEditarVehiculoDialogState
 
   bool camposValidos() {
     // Verifica que todos los campos estén llenos
-    return matriculaVehiculoController.text.isNotEmpty &&
+    return clienteSeleccionadoController.text.isNotEmpty &&
+        matriculaVehiculoController.text.isNotEmpty &&
         marcaController.text.isNotEmpty &&
         modeloController.text.isNotEmpty &&
         anioController.text.isNotEmpty;
@@ -450,7 +453,7 @@ class _AgregarEditarVehiculoDialogState
         "matricula_vehiculo": matriculaVehiculoController.text,
         "clienteReference": FirebaseFirestore.instance
             .collection('clientes')
-            .doc(clienteReferenceController.text),
+            .doc(clienteSeleccionadoController.text),
         "marca": marcaController.text,
         "modelo": modeloController.text,
         "anio": anioController.text,
@@ -475,7 +478,8 @@ class _ClienteSeleccionDialogState extends State<ClienteSeleccionDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Seleccionar Cliente'),
-      contentPadding: EdgeInsets.all(10.0), // Ajusta el padding según tus necesidades
+      contentPadding:
+          EdgeInsets.all(10.0), // Ajusta el padding según tus necesidades
       content: Container(
         width: 350.0,
         height: 450.0, // Ajusta la altura según tus necesidades
@@ -501,16 +505,22 @@ class _ClienteSeleccionDialogState extends State<ClienteSeleccionDialog> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Center(child: Text('Error al cargar clientes: ${snapshot.error}'));
+                    return Center(
+                        child: Text(
+                            'Error al cargar clientes: ${snapshot.error}'));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return Center(child: Text('No hay clientes disponibles.'));
                   } else {
                     // Filtra la lista de clientes según el término de búsqueda
                     final filteredClientes = snapshot.data!
                         .where((cliente) =>
-                            cliente.nom_cliente.toLowerCase().contains(searchController.text.toLowerCase()) ||
-                            cliente.ape_cliente.toLowerCase().contains(searchController.text.toLowerCase()) ||
-                            cliente.rut_cliente.toLowerCase().contains(searchController.text.toLowerCase()))
+                            cliente.nom_cliente.toLowerCase().contains(
+                                searchController.text.toLowerCase()) ||
+                            cliente.ape_cliente.toLowerCase().contains(
+                                searchController.text.toLowerCase()) ||
+                            cliente.rut_cliente
+                                .toLowerCase()
+                                .contains(searchController.text.toLowerCase()))
                         .toList();
 
                     return ListView.builder(
@@ -518,7 +528,8 @@ class _ClienteSeleccionDialogState extends State<ClienteSeleccionDialog> {
                       itemBuilder: (context, index) {
                         final cliente = filteredClientes[index];
                         return ListTile(
-                          title: Text(" ${cliente.nom_cliente} ${cliente.ape_cliente} ${cliente.rut_cliente}"),
+                          title: Text(
+                              " ${cliente.nom_cliente} ${cliente.ape_cliente} ${cliente.rut_cliente}"),
                           onTap: () {
                             Navigator.pop(context, cliente);
                           },

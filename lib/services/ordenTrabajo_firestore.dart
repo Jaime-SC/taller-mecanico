@@ -346,6 +346,14 @@ class _AgregarEditarOrdenTrabajoDialogState
   final TextEditingController fechaInicioController = TextEditingController();
   final TextEditingController fechaTerminoController = TextEditingController();
   final TextEditingController estadoController = TextEditingController();
+  final TextEditingController matriculaSeleccionadoController =
+      TextEditingController();
+  final TextEditingController clienteSeleccionadoController =
+      TextEditingController();
+  final TextEditingController fechaInicioSeleccionadaController =
+      TextEditingController();
+  final TextEditingController fechaTerminoSeleccionadaController =
+      TextEditingController();
 
   Future<void> _seleccionarCliente(BuildContext context) async {
     final clienteSeleccionado = await showDialog<Cliente>(
@@ -357,7 +365,7 @@ class _AgregarEditarOrdenTrabajoDialogState
 
     if (clienteSeleccionado != null) {
       setState(() {
-        rutReferenceController.text = clienteSeleccionado.rut_cliente;
+        clienteSeleccionadoController.text = clienteSeleccionado.rut_cliente;
       });
     }
   }
@@ -372,7 +380,7 @@ class _AgregarEditarOrdenTrabajoDialogState
 
     if (vehiculoSeleccionado != null) {
       setState(() {
-        matriculaVehiculoReferenceController.text =
+        matriculaSeleccionadoController.text =
             vehiculoSeleccionado.matricula_vehiculo;
       });
     }
@@ -410,27 +418,10 @@ class _AgregarEditarOrdenTrabajoDialogState
       content: SingleChildScrollView(
         child: Column(
           children: [
-            //textField("Id Orden Trabajo", idOrdenTrabajoController),
             Row(
               children: [
                 Expanded(
-                  child: textField("Matricula Vehiculo",
-                      matriculaVehiculoReferenceController,
-                      enabled: false),
-                ),
-                IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () {
-                    // Abre el diálogo de selección de clientes
-                    _seleccionarVehiculo(context);
-                  },
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: textField("Rut Cliente", rutReferenceController,
+                  child: textField("Rut Cliente", clienteSeleccionadoController,
                       enabled: false),
                 ),
                 IconButton(
@@ -442,16 +433,34 @@ class _AgregarEditarOrdenTrabajoDialogState
                 ),
               ],
             ),
+            Row(
+              children: [
+                Expanded(
+                  child: textField(
+                      "Matricula Vehiculo", matriculaSeleccionadoController,
+                      enabled: false),
+                ),
+                IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () {
+                    // Abre el diálogo de selección de clientes
+                    _seleccionarVehiculo(context);
+                  },
+                ),
+              ],
+            ),
             // Fecha de inicio
             Row(
               children: [
                 Expanded(
-                  child: textField("Fecha inicio", fechaInicioController),
+                  child: textField(
+                      "Fecha inicio", fechaInicioSeleccionadaController),
                 ),
                 IconButton(
                   icon: Icon(Icons.calendar_today),
                   onPressed: () {
-                    _seleccionarFecha(context, fechaInicioController);
+                    _seleccionarFecha(
+                        context, fechaInicioSeleccionadaController);
                   },
                 ),
               ],
@@ -461,12 +470,12 @@ class _AgregarEditarOrdenTrabajoDialogState
             Row(
               children: [
                 Expanded(
-                  child: textField("Fecha Termino", fechaTerminoController),
+                  child: textField("Fecha Termino", fechaTerminoSeleccionadaController),
                 ),
                 IconButton(
                   icon: Icon(Icons.calendar_today),
                   onPressed: () {
-                    _seleccionarFecha(context, fechaTerminoController);
+                    _seleccionarFecha(context, fechaTerminoSeleccionadaController);
                   },
                 ),
               ],
@@ -546,11 +555,10 @@ class _AgregarEditarOrdenTrabajoDialogState
   bool camposValidos() {
     // Verifica que todos los campos estén llenos
     return 
-    //idOrdenTrabajoController.text.isNotEmpty &&
-        rutReferenceController.text.isNotEmpty &&
-        matriculaVehiculoReferenceController.text.isNotEmpty &&
-        fechaInicioController.text.isNotEmpty &&
-        fechaTerminoController.text.isNotEmpty &&
+        clienteSeleccionadoController.text.isNotEmpty &&
+        matriculaSeleccionadoController.text.isNotEmpty &&
+        fechaInicioSeleccionadaController.text.isNotEmpty &&
+        fechaTerminoSeleccionadaController.text.isNotEmpty &&
         estadoController.text.isNotEmpty;
   }
 
@@ -646,10 +654,10 @@ class _AgregarEditarOrdenTrabajoDialogState
           .doc(widget.ordenTrabajoId);
 
       // Convertir las fechas de texto a objetos DateTime
-      DateTime fechaInicio =
-          DateFormat('dd-MM-yyyy').parse(fechaInicioController.text);
+      DateTime fechaInicio = DateFormat('dd-MM-yyyy')
+          .parse(fechaInicioSeleccionadaController.text);
       DateTime fechaTermino =
-          DateFormat('dd-MM-yyyy').parse(fechaTerminoController.text);
+          DateFormat('dd-MM-yyyy').parse(fechaTerminoSeleccionadaController.text);
 
       // Convertir las fechas de DateTime a Timestamp
       Timestamp fechaInicioTimestamp = Timestamp.fromDate(fechaInicio);
@@ -658,11 +666,11 @@ class _AgregarEditarOrdenTrabajoDialogState
       // Obtener las referencias reales a los documentos correspondientes
       final rutReference = FirebaseFirestore.instance
           .collection('clientes')
-          .doc(rutReferenceController.text);
+          .doc(clienteSeleccionadoController.text);
 
       final matriculaVehiculoReference = FirebaseFirestore.instance
           .collection('vehiculos')
-          .doc(matriculaVehiculoReferenceController.text);
+          .doc(matriculaSeleccionadoController.text);
 
       // Actualizar la información de la orden de trabajo en Firebase
       await ordenTrabajoRef.update({

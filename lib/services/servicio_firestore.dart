@@ -250,7 +250,7 @@ class _AgregarEditarServicioDialogState
       content: SingleChildScrollView(
         child: Column(
           children: [
-            textField("Servicio", id_servicioController),
+            //textField("Servicio", id_servicioController),
             textField("Descripcion", descripcionController),
             textField("Costo", costoController),
           ],
@@ -378,7 +378,7 @@ class _AgregarEditarServicioDialogState
 
       // Actualizar la información del servicio en Firebase
       await servicioRef.update({
-        "id_servicio": id_servicioController.text,
+        //"id_servicio": id_servicioController.text,
         "descripcion": descripcionController.text,
         "costo": costo, // Almacena el costo como un entero
       });

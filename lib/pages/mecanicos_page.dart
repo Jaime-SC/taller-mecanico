@@ -2,12 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
-import '../models/cliente.dart';
 import '../models/mecanico.dart';
 import '../services/mecanicos_firestore.dart';
 import '../widgets/app_colors.dart';
 import '../widgets/reusable_widget.dart';
-import '../services/clientes_firestore.dart';
 import 'login_page.dart';
 import 'dart:convert';
 

@@ -1,21 +1,24 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/detalleOrdenTrabajo.dart';
 import '../models/ordenTrabajo.dart';
+import '../services/detalleOrdenTrabajo_firestore.dart';
 import '../services/ordenTrabajo_firestore.dart';
 import '../widgets/app_colors.dart';
 import '../widgets/reusable_widget.dart';
 import 'login_page.dart';
 
-
-class OrdenesTrabajosPage extends StatefulWidget {
-  const OrdenesTrabajosPage({Key? key});
+class DetallesOrdenesTrabajosPage extends StatefulWidget {
+  const DetallesOrdenesTrabajosPage({Key? key});
 
   @override
-  State<OrdenesTrabajosPage> createState() => _OrdenesTrabajosPageState();
+  State<DetallesOrdenesTrabajosPage> createState() =>
+      _DetallesOrdenesTrabajosPageState();
 }
 
-class _OrdenesTrabajosPageState extends State<OrdenesTrabajosPage> {
+class _DetallesOrdenesTrabajosPageState
+    extends State<DetallesOrdenesTrabajosPage> {
   late TextEditingController searchController;
   List<QueryDocumentSnapshot>? documentSnapshots;
   List<QueryDocumentSnapshot>? filteredDocumentSnapshots;
@@ -41,8 +44,8 @@ class _OrdenesTrabajosPageState extends State<OrdenesTrabajosPage> {
 
     // Inicializa la consulta para obtener la primera página
     Query query = FirebaseFirestore.instance
-        .collection("ordenesTrabajos")
-        .orderBy("matricula_vehiculo")
+        .collection("detallesOrdenesTrabajos")
+        .orderBy("id_ord_trabajo")
         .limit(pageSize);
 
     // Si ya hay documentos cargados, ajusta la consulta para comenzar después del último documento cargado
@@ -58,33 +61,30 @@ class _OrdenesTrabajosPageState extends State<OrdenesTrabajosPage> {
     });
   }
 
-  void filterOrdenesTrabajos(String searchTerm) {
+  void filterDetallesOrdenesTrabajos(String searchTerm) {
     setState(() {
       filteredDocumentSnapshots = documentSnapshots?.where((document) {
-        final ordenTrabajo = OrdenTrabajo(
-          id_ord_trabajo: document["id_ord_trabajo"] ?? "",
-          rutReference: document["rutReference"],
-          matriculaVehiculoReference: document["matriculaVehiculoReference"],
-          fecha_inicio: document["fecha_inicio"] ?? "",
-          fecha_termino: document["fecha_termino"] ?? "",
-          estado: document["estado"] ?? "",
+        final detalleOrdenTrabajo = DetalleOrdenTrabajo(
+          idOrdTrabajoReference: document['idOrdTrabajoReference'],
+          idServicioReference: document['idServicioReference'],
+          rutMecanicoReference: document['rutMecanicoReference'],
+          fecha_inicio: document['fecha_inicio'] as Timestamp,
+          fecha_termino: document['fecha_termino'] as Timestamp,
+          estado: document['estado'] ?? '',
+          costo: document['costo'] ?? 0,
         );
 
         final searchTermLowerCase = searchTerm.toLowerCase();
 
-        return ordenTrabajo.rutReference
+        return detalleOrdenTrabajo.fecha_inicio
                 .toString()
                 .contains(searchTermLowerCase) ||
-            ordenTrabajo.matriculaVehiculoReference
+            detalleOrdenTrabajo.fecha_termino
                 .toString()
                 .contains(searchTermLowerCase) ||
-            ordenTrabajo.fecha_inicio
-                .toString()
-                .contains(searchTermLowerCase) ||
-            ordenTrabajo.fecha_termino
-                .toString()
-                .contains(searchTermLowerCase) ||
-            ordenTrabajo.estado.toLowerCase().contains(searchTermLowerCase);
+            detalleOrdenTrabajo.estado
+                .toLowerCase()
+                .contains(searchTermLowerCase);
       }).toList();
     });
   }
@@ -95,7 +95,7 @@ class _OrdenesTrabajosPageState extends State<OrdenesTrabajosPage> {
       appBar: AppBar(
         foregroundColor: Colors.white,
         backgroundColor: Color(0xff008452),
-        title: Text('OrdenesTrabajos',
+        title: Text('Detalles OrdenesTrabajos',
             style: TextStyle(fontFamily: 'SpaceMonoNerdFont')),
       ),
       drawer: AppDrawer(
@@ -134,14 +134,14 @@ class _OrdenesTrabajosPageState extends State<OrdenesTrabajosPage> {
                   alignment: Alignment.topCenter,
                   child: busquedaOrdenTrabajo(
                     searchController,
-                    filterOrdenesTrabajos,
+                    filterDetallesOrdenesTrabajos,
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(25.0),
                   child: StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
-                        .collection("ordenesTrabajos")
+                        .collection("detallesOrdenesTrabajos")
                         .snapshots(),
                     builder: (BuildContext context,
                         AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -160,32 +160,35 @@ class _OrdenesTrabajosPageState extends State<OrdenesTrabajosPage> {
                       // Aplicar filtro si hay un término de búsqueda
                       if (searchController.text.isNotEmpty) {
                         filteredData = documentSnapshots?.where((document) {
-                          final ordenTrabajo = OrdenTrabajo.fromFirestore(
-                              document); // Utiliza el constructor adecuado
+                          final detalleOrdenTrabajo =
+                              DetalleOrdenTrabajo.fromFirestore(document);
 
                           final searchTermLowerCase =
                               searchController.text.toLowerCase();
 
-                          return ordenTrabajo.rutReference.id
+                          return detalleOrdenTrabajo.idOrdTrabajoReference.id
                                   .toLowerCase()
                                   .contains(searchTermLowerCase) ||
-                              ordenTrabajo.matriculaVehiculoReference.id
+                              detalleOrdenTrabajo.idServicioReference.id
                                   .toLowerCase()
                                   .contains(searchTermLowerCase) ||
-                              ordenTrabajo.fecha_inicio
+                              detalleOrdenTrabajo.rutMecanicoReference.id
+                                  .toLowerCase()
+                                  .contains(searchTermLowerCase) ||
+                              detalleOrdenTrabajo.fecha_inicio
                                   .toString()
                                   .contains(searchTermLowerCase) ||
-                              ordenTrabajo.fecha_termino
+                              detalleOrdenTrabajo.fecha_termino
                                   .toString()
                                   .contains(searchTermLowerCase) ||
-                              ordenTrabajo.estado
+                              detalleOrdenTrabajo.estado
                                   .toLowerCase()
                                   .contains(searchTermLowerCase);
                         }).toList();
                       }
 
                       return Center(
-                        child: OrdenesTrabajosDataTable(
+                        child: DetallesOrdenesTrabajosDataTable(
                           documentSnapshots: filteredData,
                         ),
                       );
@@ -205,7 +208,7 @@ class _OrdenesTrabajosPageState extends State<OrdenesTrabajosPage> {
           showDialog(
             context: context,
             builder: (BuildContext context) {
-              return AgregarEditarOrdenTrabajoDialog();
+              return AgregarEditarDetalleOrdenTrabajoDialog();
             },
           );
         },

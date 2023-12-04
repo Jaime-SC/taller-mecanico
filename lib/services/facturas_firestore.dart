@@ -1,10 +1,11 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/cliente.dart';
 import '../models/factura.dart';
 import '../models/ordenTrabajo.dart';
-import '../models/vehiculo.dart';
+
 
 class FirestoreService {
   final CollectionReference facturasCollection =
@@ -234,7 +235,7 @@ class _FacturasDataTableState extends State<FacturasDataTable> {
         idOrdTrabajoReference: a["idOrdTrabajoReference"] ?? "",
         fecha_factura: a["fecha_factura"] ?? "",
         total: a["total"] ?? "",
-        estado: a["anestadoio"] ?? "",
+        estado: a["estado"] ?? "",
       ));
       var bValue = getField(Factura(
         id_factura: b["id_factura"] ?? "",
@@ -277,6 +278,8 @@ class _AgregarEditarFacturaDialogState
       TextEditingController(); // No editable por el usuario
   final TextEditingController totalController = TextEditingController();
   final TextEditingController estadoController = TextEditingController();
+  final TextEditingController idOrdTrabajoSeleccionadoController = TextEditingController();
+
 
   Future<void> _seleccionarFecha(
       BuildContext context, TextEditingController controller) async {
